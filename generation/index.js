@@ -7,3 +7,9 @@ const iosFiles = {
 };
 
 generateIOSAdapters(iosFiles);
+
+const generateAndroidAdapters = require("./generate-adapters/android");
+const androidFiles = {
+  "../detox/android/detox/src/main/java/com/wix/detox/espresso/DetoxAction.java": "../detox/src/android/espressoapi/DetoxAction.js"
+};
+generateAndroidAdapters(androidFiles);

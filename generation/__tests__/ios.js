@@ -1,28 +1,33 @@
 const fs = require("fs");
 const remove = require("remove");
-const earlGreyGenerator = require("../generate-adapters/ios");
+const iosGenerator = require("../generate-adapters/ios");
 
-describe("earl-grey generation", () => {
+describe("iOS generation", () => {
   let ExampleClass;
   let exampleContent;
   beforeAll(() => {
     // Generate the code to test
-    fs.mkdirSync("./__tests__/generated");
+    fs.mkdirSync("./__tests__/generated-ios");
 
     const files = {
-      "./fixtures/example.h": "./__tests__/generated/example.js"
+      "./fixtures/example.h": "./__tests__/generated-ios/example.js"
     };
 
-    console.log('==> generating earl grey files');
-    earlGreyGenerator(files);
+    console.log('==> generating ios files');
+    iosGenerator(files);
+  });
 
-    console.log('==> loading earl grey files');
-    // Load
-    ExampleClass = require("./generated/example.js");
+  beforeEach(() => {
+    ExampleClass = require("./generated-ios/example.js");
     exampleContent = fs.readFileSync(
-      "./__tests__/generated/example.js",
+      "./__tests__/generated-ios/example.js",
       "utf8"
     );
+  });
+
+  afterAll(() => {
+    // Clean up
+    remove.removeSync("./__tests__/generated-ios");
   });
 
   it("should export the class", () => {
@@ -320,10 +325,5 @@ describe("earl-grey generation", () => {
         ExampleClass.detoxMatcherForBothAndAncestorMatcher(currentMatcher, ancestorMatcher);
       }).toThrowErrorMatchingSnapshot();
     });
-  });
-
-  afterAll(() => {
-    // Clean up
-    remove.removeSync("./__tests__/generated");
   });
 });

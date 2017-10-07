@@ -177,6 +177,7 @@ module.exports = function ({ typeCheckInterfaces, renameTypesMap, supportedTypes
   }
 
   function createTypeCheck(json) {
+    console.log(json.type);
     const typeCheckCreator = typeCheckInterfaces[json.type];
     const isListOfChecks = typeCheckCreator instanceof Array;
 
