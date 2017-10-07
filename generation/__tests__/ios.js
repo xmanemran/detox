@@ -1,6 +1,6 @@
 const fs = require("fs");
 const remove = require("remove");
-const earlGreyGenerator = require("../earl-grey");
+const earlGreyGenerator = require("../generate-adapters/ios");
 
 describe("earl-grey generation", () => {
   let ExampleClass;
@@ -84,15 +84,15 @@ describe("earl-grey generation", () => {
 
     it("should thow error for CGPoint with wrong x and y values", () => {
       expect(() => {
-        ExampleClass.actionForMultipleTapsWithCountAtPoint(3, {x: 3, y: 4});
+        ExampleClass.actionForMultipleTapsWithCountAtPoint(3, { x: 3, y: 4 });
       }).not.toThrow();
-      
+
       expect(() => {
-        ExampleClass.actionForMultipleTapsWithCountAtPoint(3, {x: "3", y: 4});
+        ExampleClass.actionForMultipleTapsWithCountAtPoint(3, { x: "3", y: 4 });
       }).toThrowErrorMatchingSnapshot();
 
       expect(() => {
-        ExampleClass.actionForMultipleTapsWithCountAtPoint(3, {x: 3});
+        ExampleClass.actionForMultipleTapsWithCountAtPoint(3, { x: 3 });
       }).toThrowErrorMatchingSnapshot();
     });
   });
@@ -113,7 +113,7 @@ describe("earl-grey generation", () => {
     });
 
     it("should return the invocation object for methods with objects as args", () => {
-      const result = ExampleClass.actionForMultipleTapsWithCountAtPoint(3, {x: 3, y: 4});
+      const result = ExampleClass.actionForMultipleTapsWithCountAtPoint(3, { x: 3, y: 4 });
 
       expect(result.target.type).toBe('Class');
       expect(result.target.value).toBe('GREYActions');
@@ -124,7 +124,7 @@ describe("earl-grey generation", () => {
       expect(result.args[0].type).toBe('NSInteger');
       expect(result.args[0].value).toBe(3);
       expect(result.args[1].type).toBe('CGPoint');
-      expect(result.args[1].value).toEqual({x: 3, y: 4});
+      expect(result.args[1].value).toEqual({ x: 3, y: 4 });
       expect(result).toMatchSnapshot();
     });
 
@@ -150,7 +150,7 @@ describe("earl-grey generation", () => {
 
     it("should sanitize the content edge", () => {
       const result = ExampleClass.actionForScrollToContentEdge("bottom");
-      
+
       expect(result.args[0].type).toBe("NSInteger");
       expect(result.args[0].value).toBe(3);
     });

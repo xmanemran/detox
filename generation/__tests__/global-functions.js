@@ -1,4 +1,4 @@
-const globals = require("../earl-grey/global-functions");
+const globals = require("../generate-adapters/global-functions");
 
 describe("globals", () => {
   describe("sanitize_greyDirection", () => {
