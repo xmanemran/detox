@@ -8,10 +8,26 @@ import com.wix.invoke.types.InvocationTarget;
 import org.junit.Test;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
+import org.json.*;
+import static org.junit.Assert.assertEquals;
+
 /**
  * Created by rotemm on 13/10/2016.
  */
 public class JsonParserTest {
+
+    @Test
+    public void testJSONObjectConstructionFromMethods() throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("works", true);
+        assertEquals(json.getBoolean("works"), true);
+    }
+    
+    @Test
+    public void testJSONObjectConstructionString() throws JSONException {
+        JSONObject json = new JSONObject("{ \"works\": \"yes\" }");
+        assertEquals(json.getString("works"), "yes");
+    }
 
     @Test
     public void targetClassStaticMethodNoParams() {
