@@ -1,0 +1,8 @@
+version: '3'
+services:
+  detox:
+    build: .
+    command: bash -c "cd detox/test && npm run build:android && npm run e2e:android"
+    # command: ./test-android.sh
+    volumes:
+      - ../..:/detox
