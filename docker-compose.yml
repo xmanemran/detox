@@ -1,8 +1,11 @@
 version: '3'
 services:
   detox:
+    environment:
+      - DEVICE="Samsung Galaxy S6"
     build: .
-    command: bash -c "cd detox/test && npm run build:android && npm run e2e:android"
+    # command: bash -c "ls -la && cd detox/test && npm install && npm run build:android && npm run e2e:android"
+    command: bash -c "/root/tools/emulator -list-avds"
     # command: ./test-android.sh
     volumes:
-      - ../..:/detox
+      - .:/detox

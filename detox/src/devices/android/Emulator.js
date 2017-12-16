@@ -9,7 +9,8 @@ const Tail = require('tail').Tail;
 
 class Emulator {
   constructor() {
-    this.emulatorBin = path.join(Environment.getAndroidSDKPath(), 'tools', 'emulator');
+    // this.emulatorBin = path.join(Environment.getAndroidSDKPath(), 'tools', 'emulator');
+    this.emulatorBin = './emulator/emulator';
   }
 
   async listAvds() {

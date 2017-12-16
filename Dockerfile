@@ -1,4 +1,4 @@
-FROM butomo1989/docker-android-arm-7.1.1
+FROM butomo1989/docker-android-arm-6.0
 
 # Install node 8.X
 RUN apt-get update && \
