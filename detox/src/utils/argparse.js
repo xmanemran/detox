@@ -12,7 +12,7 @@ function getArgValue(key) {
       value = undefined;
     }
   }
-
+  
   return value;
 }
 

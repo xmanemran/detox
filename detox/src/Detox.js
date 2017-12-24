@@ -44,6 +44,7 @@ class Detox {
   }
 
   async init(params = {launchApp: true}) {
+
     if (!(this.userConfig.configurations && _.size(this.userConfig.configurations) >= 1)) {
       throw new Error(`No configured devices`);
     }

@@ -70,6 +70,7 @@ class DetoxServer {
   }
 
   close() {
+    console.log('closing server');
     this.wss.close();
   }
 }

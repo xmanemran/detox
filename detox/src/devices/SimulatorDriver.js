@@ -2,10 +2,12 @@ const exec = require('child-process-promise').exec;
 const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
+const plockfile = require('proper-lockfile');
 const IosDriver = require('./IosDriver');
 const AppleSimUtils = require('./AppleSimUtils');
 const configuration = require('../configuration');
 const environment = require('../utils/environment');
+const retry = require('../utils/retry');
 
 class SimulatorDriver extends IosDriver {
 
@@ -23,10 +25,88 @@ class SimulatorDriver extends IosDriver {
     }
   }
 
+  async createDevice() {
+    //xcrun simctl create "iPhone 7 Plus (Detox)" "iPhone 7 Plus" "com.apple.CoreSimulator.SimRuntime.iOS-11-0"
+  }
   async acquireFreeDevice(name) {
-    const deviceId = await this._applesimutils.findDeviceUDID(name);
+
+    //const deviceId = await retry(() => this.getLocked(name));
+    const deviceId = await this.getLocked(name);
+    //const lockfile = './ios.sim.state.lock';
+    ////throw new Error(' no available devices');
+    //let deviceId;
+    //try {
+    //  plockfile.lockSync(lockfile);
+    //
+    //  const acquiredDevices = fs.readFileSync(lockfile, 'utf-8');
+    //  const purposedDeviceIds = await this._applesimutils.findDeviceUDID(name);
+    //  const lockedDevices = JSON.parse(acquiredDevices);
+    //
+    //  for (let i = 0 ; i < purposedDeviceIds.length; i++) {
+    //    const purposedDeviceId = purposedDeviceIds[i];
+    //    if (_.includes(lockedDevices, purposedDeviceId)) {
+    //      //throw new Error(' no available devices');
+    //    } else {
+    //      deviceId = purposedDeviceId;
+    //      break;
+    //    }
+    //  }
+    //
+    //
+    //  lockedDevices.push(deviceId);
+    //  fs.writeFileSync(lockfile, JSON.stringify(lockedDevices));
+    //  plockfile.unlockSync(lockfile);
+    //} catch (ex) {
+    //  console.log(ex)
+    //  await this.sleep(1000);
+    //  deviceId = await this.acquireFreeDevice(name);
+    //}
+    console.log('deviceID:' + deviceId)
     await this.boot(deviceId);
     return deviceId;
+  }
+
+  isJSON(str) {
+    try {
+      return (JSON.parse(str) && !!str);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async getLocked(name) {
+    const lockfile = './ios.sim.state.lock';
+    //throw new Error(' no available devices');
+    let deviceId;
+    await retry(() => plockfile.lockSync(lockfile));
+
+
+    const acquiredDevices = fs.readFileSync(lockfile, 'utf-8');
+    const purposedDeviceIds = await this._applesimutils.findDeviceUDID(name);
+    const lockedDevices = this.isJSON(acquiredDevices) ? JSON.parse(acquiredDevices) : [];
+    console.log("lockedDevices" , lockedDevices,"purposedDeviceIds", purposedDeviceIds)
+    for (let i = 0 ; i < purposedDeviceIds.length; i++) {
+      const purposedDeviceId = purposedDeviceIds[i];
+      if (!_.includes(lockedDevices, purposedDeviceId)) {
+        deviceId = purposedDeviceId;
+      }
+    }
+    if (!deviceId) {
+      plockfile.unlockSync(lockfile);
+      console.log(`Can not acquire a simulator with type "${name}"`);
+      throw new Error(`Can not acquire a simulator with type "${name}"`);
+    }
+
+    lockedDevices.push(deviceId);
+    fs.writeFileSync(lockfile, JSON.stringify(lockedDevices));
+    plockfile.unlockSync(lockfile);
+
+    return deviceId;
+  }
+
+
+  async sleep(ms = 0) {
+    return new Promise((resolve, reject) => setTimeout(resolve, ms));
   }
 
   async getBundleIdFromBinary(appPath) {
@@ -94,6 +174,16 @@ class SimulatorDriver extends IosDriver {
 
   getLogsPaths(deviceId) {
     return this._applesimutils.getLogsPaths(deviceId);
+  }
+
+  async cleanup(deviceId, bundleId) {
+    const lockfile = './ios.sim.state.lock';
+    await retry(() => plockfile.lockSync(lockfile));
+    const lockedDevicesJson = fs.readFileSync(lockfile, 'utf-8');
+    const lockedDevices = JSON.parse(lockedDevicesJson);
+    _.pull(lockedDevices,deviceId);
+    fs.writeFileSync(lockfile, JSON.stringify(lockedDevices));
+    plockfile.unlockSync(lockfile);
   }
 }
 

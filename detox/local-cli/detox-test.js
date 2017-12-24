@@ -3,6 +3,8 @@
 const program = require('commander');
 const path = require('path');
 const cp = require('child_process');
+const fs = require('fs');
+
 program
   .option('-o, --runner-config [config]',
     `Test runner config file, defaults to e2e/mocha.opts for mocha and e2e/config.json' for jest`)
@@ -34,6 +36,9 @@ if (typeof program.debugSynchronization === "boolean") {
   program.debugSynchronization = 3000;
 }
 
+resetDeviceLock();
+
+
 switch (runner) {
   case 'mocha':
     runMocha();
@@ -64,7 +69,7 @@ function runMocha() {
 function runJest() {
   const configFile = runnerConfig ? `--config=${runnerConfig}` : '';
   const platform = program.platform ? `--testNamePattern='^((?!${getPlatformSpecificString(program.platform)}).)*$'` : '';
-  const command = `node_modules/.bin/jest ${testFolder} ${configFile} --runInBand ${platform}`;
+  const command = `node_modules/.bin/jest ${testFolder} ${configFile} --maxWorkers=4 ${platform} --verbose`;
   console.log(command);
   cp.execSync(command, {
     stdio: 'inherit',
@@ -104,4 +109,9 @@ function getPlatformSpecificString(platform) {
   }
 
   return platformRevertString;
+}
+
+function resetDeviceLock() {
+  const lockfile = './ios.sim.state.lock';
+  fs.writeFileSync(lockfile, JSON.stringify([]));
 }

@@ -24,18 +24,19 @@ class AppleSimUtils {
       trying: `Searching for device matching ${query}...`
     };
     let correctQuery = this._correctQueryWithOS(query);
-    const response = await this._execAppleSimUtils({ args: `--list "${correctQuery}" --maxResults=1` }, statusLogs, 1);
+    const response = await this._execAppleSimUtils({ args: `--list  --byType "${correctQuery}"` }, statusLogs, 1);
     const parsed = this._parseResponseFromAppleSimUtils(response);
-    const udid = _.get(parsed, [0, 'udid']);
-    if (!udid) {
+    const udids = _.map(parsed, 'udid');
+    console.log("udids", udids)
+    if (!udids) {
       throw new Error(`Can't find a simulator to match with "${query}", run 'xcrun simctl list' to list your supported devices.
       It is advised to only state a device type, and not to state iOS version, e.g. "iPhone 7"`);
     }
-    return udid;
+    return udids;
   }
 
   async findDeviceByUDID(udid) {
-    const response = await this._execAppleSimUtils({ args: `--list` }, undefined, 1);
+    const response = await this._execAppleSimUtils({ args: `--list --byId "${udid}"` }, undefined, 1);
     const parsed = this._parseResponseFromAppleSimUtils(response);
     const device = _.find(parsed, (device) => _.isEqual(device.udid, udid));
     if (!device) {
@@ -44,25 +45,15 @@ class AppleSimUtils {
     return device;
   }
 
-  async waitForDeviceState(udid, state) {
-    let device;
-    await retry({ retries: 10, interval: 1000 }, async () => {
-      device = await this.findDeviceByUDID(udid);
-      if (!_.isEqual(device.state, state)) {
-        throw new Error(`device is in state '${device.state}'`);
-      }
-    });
-    return device;
+  async boot(udid) {
+    if (!await this.isBooted(udid)) {
+      await this._bootDeviceByXcodeVersion(udid);
+    }
   }
 
-  async boot(udid) {
+  async isBooted(udid) {
     const device = await this.findDeviceByUDID(udid);
-    if (_.isEqual(device.state, 'Booted') || _.isEqual(device.state, 'Booting')) {
-      return false;
-    }
-    await this.waitForDeviceState(udid, 'Shutdown');
-    await this._bootDeviceByXcodeVersion(udid);
-    await this.waitForDeviceState(udid, 'Booted');
+    return (_.isEqual(device.state, 'Booted') || _.isEqual(device.state, 'Booting'));
   }
 
   async install(udid, absPath) {
@@ -200,6 +191,7 @@ class AppleSimUtils {
     } else {
       await this._bootDeviceMagically(udid);
     }
+    await this._execSimctl({ cmd: `bootstatus ${udid}`, retries: 1 });
   }
 
   async _bootDeviceMagically(udid) {

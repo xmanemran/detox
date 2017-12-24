@@ -1,13 +1,13 @@
 const MockServer = require('../mock-server/mock-server');
 
-describe('Network Synchronization', () => {
+describe.only('Network Synchronization', () => {
   let mockServer = new MockServer();
 
-  before(async () => {
+  beforeAll(async () => {
     mockServer.init();
   });
 
-  after( () => {
+  afterAll(() => {
     mockServer.close();
   });
 

@@ -1,5 +1,6 @@
 {
   "setupTestFrameworkScriptFile" : "./init.js",
   "bail": true,
-  "verbose": true
+  "verbose": true,
+  "forceExit": true
 }

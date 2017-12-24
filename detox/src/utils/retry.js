@@ -17,6 +17,7 @@ async function retry(options, func) {
       return await func(currentRetry);
     } catch (e) {
       if (currentRetry === retries) {
+        console.log("errrrrrrrrrrrrrrrrrrrr: " , e)
         throw e;
       } else {
         const sleep = currentRetry * interval;
