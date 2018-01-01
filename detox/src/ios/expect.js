@@ -233,6 +233,11 @@ class WaitForActionInteraction extends Interaction {
   }
 }
 
+/**
+ * An UI Element
+ * @param {Matcher} matcher
+ * @public
+ */
 class Element {
   constructor(matcher) {
     this._originalMatcher = matcher;
