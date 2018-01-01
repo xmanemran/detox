@@ -42,6 +42,7 @@
 	"dependencies": {
 		"babel-generate-guard-clauses": "^2.0.0",
 		"babel-template": "^6.26.0",
+		"documentation": "^5.3.5",
 		"java-method-parser": "^0.4.0"
 	}
 }
