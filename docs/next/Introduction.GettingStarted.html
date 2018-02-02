@@ -78,7 +78,7 @@ brew install --HEAD applesimutils
 }
 </code></pre>
 <p>In the above configuration example, change <code>example</code> to your actual project name. Under the key <code>&quot;binaryPath&quot;</code>, <code>example.app</code> should be <code>&lt;your_project_name&gt;.app</code>. Under the key <code>&quot;build&quot;</code>, <code>example.xcodeproj</code> should be <code>&lt;your_project_name&gt;.xcodeproj</code> and <code>-scheme example</code> should be <code>-scheme &lt;your_project_name&gt;</code>.</p>
-<p>For iOS apps in a workspace (eg: Cocoapods) use <code>-workspace ios/example.xcworkspace</code> instead of <code>-project</code>.</p>
+<p>For iOS apps in a workspace (eg: CocoaPods) use <code>-workspace ios/example.xcworkspace</code> instead of <code>-project</code>.</p>
 <p>Also make sure the simulator model specified under the key <code>&quot;name&quot;</code> (<code>iPhone 7</code> above) is actually available on your machine (it was installed by Xcode). Check this by typing <code>xcrun simctl list</code> in terminal to display all available simulators.</p>
 <blockquote>
 <p>TIP: To test a release version, replace 'Debug' with 'Release' in the binaryPath and build properties. For full configuration options see Configuration under the API Reference.</p>
