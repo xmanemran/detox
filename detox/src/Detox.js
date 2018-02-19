@@ -104,14 +104,25 @@ class Detox {
       this.device.setArtifactsDestination(testArtifactsPath);
       await this.device.prepareArtifacts();
     }
+
+    await this._handleAppCrash(testNameComponents[1]);
   }
 
   async afterEach(success = true) {
     if(this._artifactsPathsProvider !== undefined) {
       await this.device.finalizeArtifacts(success);
     }
+
+    await this._handleAppCrash(testName);
   }
 
+  async _handleAppCrash(testName) {
+    const pendingAppCrash = this.client.getPendingCrashAndReset();
+    if (pendingAppCrash) {
+      log.error('',`App crashed in test '${testName}', here's the native stack trace: \n${pendingAppCrash}`);
+      await this.device.launchApp({newInstance:true});
+    }
+  }
   async _getSessionConfig() {
     const session = this.userSession || await configuration.defaultSession();
 
