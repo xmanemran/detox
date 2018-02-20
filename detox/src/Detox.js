@@ -108,7 +108,7 @@ class Detox {
     await this._handleAppCrash(testNameComponents[1]);
   }
 
-  async afterEach(success = true) {
+  async afterEach(suiteName, testName, success = true) {
     if(this._artifactsPathsProvider !== undefined) {
       await this.device.finalizeArtifacts(success);
     }

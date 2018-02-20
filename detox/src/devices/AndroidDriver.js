@@ -186,21 +186,7 @@ class AndroidDriver extends DeviceDriverBase {
     let promise = spawnRecording();
     promise.catch(handleRecordingTermination);
 
-    // XXX: ugly loop to make sure we continue only if recording has begun.
-    let recording = false;
-    let size = 0;
-    while (!recording) {
-      size = 0;
-      recording = true;
-      try {
-        size = await adb.getFileSize(deviceId, videoPath);
-        if (size < 1) {
-          recording = false;
-        }
-      } catch (e) {
-        recording = false;
-      }
-    }
+    await this._waitForRecordingToStart(adb, deviceId, videoPath);
 
     this._recordings[deviceId] = {
       process: promise.childProcess,
@@ -222,6 +208,24 @@ class AndroidDriver extends DeviceDriverBase {
 
     function spawnRecording() {
       return adb.screenrecord(deviceId, videoPath, width, height);
+    }
+  }
+
+  async _waitForRecordingToStart(deviceId, videoPath) {
+  // XXX: ugly loop to make sure we continue only if recording has begun.
+    let recording = false;
+    let size = 0;
+    while (!recording) {
+      size = 0;
+      recording = true;
+      try {
+        size = await this.adb.getFileSize(deviceId, videoPath);
+        if (size < 1) {
+          recording = false;
+        }
+      } catch (e) {
+        recording = false;
+      }
     }
   }
 

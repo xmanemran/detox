@@ -42,19 +42,21 @@ class Device {
     await this._startVideo();
   }
 
+  shouldTakeScreenshot(success) {
+    return  (this._deviceConfig.takeScreenshots === 'failing' && !success) ||
+             this._deviceConfig.takeScreenshots === 'true';
+  }
+
+  shouldRecordVideo(success) {
+    return (this._deviceConfig.recordVideos === 'failing' && !success) ||
+            this._deviceConfig.recordVideos === 'true'
+  }
+
   async finalizeArtifacts(success = true) {
-    const takeScreenshot = (
-      (this._deviceConfig.takeScreenshots === 'failing' && !success) ||
-        this._deviceConfig.takeScreenshots === 'true'
-    );
-    const recordVideo = (
-      (this._deviceConfig.recordVideos === 'failing' && !success) ||
-        this._deviceConfig.recordVideos === 'true'
-    );
+    const keepVideo = this.shouldRecordVideo(success);
+    await this._stopVideo(keepVideo);
 
-    await this._stopVideo(!recordVideo);
-
-    if (takeScreenshot) {
+    if (this.shouldTakeScreenshot()) {
       await this._takeScreenshot('screenshot-after');
     } else {
       await this._artifactsCopier.dropArtifacts();
@@ -85,7 +87,7 @@ class Device {
 
     if (params.url) {
       baseLaunchArgs['detoxURLOverride'] = params.url;
-      if(params.sourceApp) {
+      if (params.sourceApp) {
         baseLaunchArgs['detoxSourceAppOverride'] = params.sourceApp;
       }
     } else if (params.userNotification) {
@@ -193,7 +195,7 @@ class Device {
 
   async _cleanup() {
     await this.deviceDriver.cleanup(this._deviceId, this._bundleId);
-    await this._artifactsCopier.processQueue(true);
+    await this._artifactsCopier.processQueue();
   }
 
   async _takeScreenshot(name) {
@@ -211,13 +213,13 @@ class Device {
     }
   }
 
-  async _stopVideo(drop) {
+  async _stopVideo(keep) {
     const video = await this.deviceDriver.stopVideo(this._deviceId);
     if (video) {
-      if (drop) {
-        await video.remove();
-      } else {
+      if (keep) {
         this._artifactsCopier.queueArtifact(video, 'recording');
+      } else {
+        await video.remove();
       }
     }
   }
@@ -244,7 +246,7 @@ class Device {
   }
 
   _getAbsolutePath(appPath) {
-    if(path.isAbsolute(appPath)) {
+    if (path.isAbsolute(appPath)) {
       return appPath;
     }
 
