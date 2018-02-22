@@ -16,8 +16,8 @@
 <pre><code class="hljs css js"><span class="hljs-keyword">const</span> detox = <span class="hljs-built_in">require</span>(<span class="hljs-string">'detox'</span>);
 <span class="hljs-keyword">const</span> config = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../package.json'</span>).detox;
 
-<span class="hljs-comment">// Set the default timeout</span>
-jasmine.DEFAULT_TIMEOUT_INTERVAL = <span class="hljs-number">120000</span>;
+<span class="hljs-comment">// Set the default test timeout of 120s</span>
+jest.setTimeout(<span class="hljs-number">120000</span>);
 
 beforeAll(<span class="hljs-keyword">async</span> () =&gt; {
   <span class="hljs-keyword">await</span> detox.init(config);
