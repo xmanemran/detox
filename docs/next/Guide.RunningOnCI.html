@@ -56,8 +56,6 @@ detox <span class="hljs-built_in">test</span> --configuration ios.sim.release --
 <span class="hljs-bullet">  -</span> <span class="hljs-string">NODE_VERSION=stable</span>
 
 <span class="hljs-attr">install:</span>
-<span class="hljs-bullet">-</span> <span class="hljs-string">brew</span> <span class="hljs-string">tap</span> <span class="hljs-string">wix/brew</span>
-<span class="hljs-bullet">-</span> <span class="hljs-string">brew</span> <span class="hljs-string">install</span> <span class="hljs-string">applesimutils</span>
 <span class="hljs-bullet">-</span> <span class="hljs-string">curl</span> <span class="hljs-bullet">-o-</span> <span class="hljs-attr">https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh</span> <span class="hljs-string">| bash
 - export NVM_DIR="$HOME/.nvm" &amp;&amp; [ -s "$NVM_DIR/nvm.sh" ] &amp;&amp; . "$NVM_DIR/nvm.sh"
 - nvm install $NODE_VERSION
@@ -118,7 +116,7 @@ detox <span class="hljs-built_in">test</span> --configuration ios.sim.release --
             <span class="hljs-comment">#!/bin/bash</span>
 
             <span class="hljs-string">brew</span> <span class="hljs-string">tap</span> <span class="hljs-string">wix/brew</span>
-            <span class="hljs-string">brew</span> <span class="hljs-string">install</span> <span class="hljs-string">applesimutils</span>
+            <span class="hljs-string">brew</span> <span class="hljs-string">install</span> <span class="hljs-string">applesimutils</span> <span class="hljs-bullet">--HEAD</span>
 <span class="hljs-attr">        title:</span> <span class="hljs-string">Install</span> <span class="hljs-string">Detox</span> <span class="hljs-string">Utils</span>
 <span class="hljs-attr">    - script:</span>
 <span class="hljs-attr">        inputs:</span>
