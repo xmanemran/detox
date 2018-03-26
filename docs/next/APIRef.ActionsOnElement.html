@@ -19,6 +19,7 @@
 <li><a href="#scrollpixels-direction"><code>.scroll()</code></a></li>
 <li><a href="#scrolltoedge"><code>.scrollTo()</code></a></li>
 <li><a href="#swipedirection-speed-percentage"><code>.swipe()</code></a></li>
+<li><a href="#setcolumntovalue-column-value"><code>.setColumnToValue()</code></a> <strong>iOS only</strong></li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="tap"></a><a href="#tap" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>tap()</code></h3>
 <p>Simulate tap on an element.</p>
@@ -73,5 +74,12 @@ percentage - (optional) screen percentage to swipe as float</p>
 <pre><code class="hljs css js"><span class="hljs-keyword">await</span> element(by.id(<span class="hljs-string">'scrollView'</span>)).swipe(<span class="hljs-string">'down'</span>);
 <span class="hljs-keyword">await</span> element(by.id(<span class="hljs-string">'scrollView'</span>)).swipe(<span class="hljs-string">'down'</span>, <span class="hljs-string">'fast'</span>);
 <span class="hljs-keyword">await</span> element(by.id(<span class="hljs-string">'scrollView'</span>)).swipe(<span class="hljs-string">'down'</span>, <span class="hljs-string">'fast'</span>, <span class="hljs-number">0.5</span>);
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="setcolumntovaluecolumn-value-ios-only"></a><a href="#setcolumntovaluecolumn-value-ios-only" aria-hidden="true" class="hash-link" ><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>setColumnToValue(column,value)</code>  iOS only</h3>
+<p>column - number of datepicker column (starts from 0)
+value - string value in setted column (must be correct)</p>
+<pre><code class="hljs css js"><span class="hljs-keyword">await</span> expect(element(by.type(<span class="hljs-string">'UIPickerView'</span>))).toBeVisible();
+<span class="hljs-keyword">await</span> element(by.type(<span class="hljs-string">'UIPickerView'</span>)).setColumnToValue(<span class="hljs-number">1</span>,<span class="hljs-string">"6"</span>);
+<span class="hljs-keyword">await</span> element(by.type(<span class="hljs-string">'UIPickerView'</span>)).setColumnToValue(<span class="hljs-number">2</span>,<span class="hljs-string">"34"</span>);
 </code></pre>
 </span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="APIRef.Matchers.html">← Matchers</a><a class="docs-next button" href="APIRef.Expect.html">Expect →</a></div></div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/detox/" class="nav-home"></a><div><h5>Docs</h5><a href="/detox/docs/en/Introduction.GettingStarted.html">Getting Started</a><a href="/detox/docs/en/Guide.Contributing.html">Contributing</a></div><div><h5>Community</h5><a href="/detox/en/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/detox" target="_blank">Stack Overflow</a></div><div><h5>More</h5><a href="https://github.com/wix/detox">GitHub</a><a class="github-button" href="https://github.com/wix/detox" data-icon="octicon-star" data-count-href="/wix/detox/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2018 Wix.com Ltd.</section></footer></div></body></html>
