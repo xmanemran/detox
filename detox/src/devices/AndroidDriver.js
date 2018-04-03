@@ -191,7 +191,7 @@ class AndroidDriver extends DeviceDriverBase {
     let promise = spawnRecording();
     promise.catch(handleRecordingTermination);
 
-    await this._waitForRecordingToStart(adb, deviceId, videoPath);
+    await this._waitForRecordingToStart(deviceId, videoPath);
 
     this._recordings[deviceId] = {
       process: promise.childProcess,
