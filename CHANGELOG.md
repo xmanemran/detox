@@ -1,5 +1,57 @@
 # Change Log
 
+## [7.3.0](https://github.com/wix/detox/tree/7.3.0) (2018-03-26)
+[Full Changelog](https://github.com/wix/detox/compare/7.2.0...7.3.0)
+
+**Enhancements**
+
+- Support UserActivity [\#622](https://github.com/wix/detox/issues/622)
+- Add Support for Device Shake Action [\#551](https://github.com/wix/detox/issues/551)
+
+**Fixed Bugs**
+
+- detox clean-framework-cache && detox build-framework-cache broken for internal development [\#619](https://github.com/wix/detox/issues/619)
+- detox.init doesn't resolve in hybrid apps with initial native page \(until you manually navigate to a react native page\) [\#615](https://github.com/wix/detox/issues/615)
+- `createPushNotificationJson` creates a notification.json file under a constant path [\#601](https://github.com/wix/detox/issues/601)
+
+**Merged Pull Requests**
+
+- CLI: Automatically filter platform tests by inferring from config [\#639](https://github.com/wix/detox/pull/639) ([rotemmiz](https://github.com/rotemmiz))
+- Update Introduction.Workflows.md [\#633](https://github.com/wix/detox/pull/633) ([joegoodall1](https://github.com/joegoodall1))
+- iOS: Support spaces in app name [\#626](https://github.com/wix/detox/pull/626) ([ssg-luke](https://github.com/ssg-luke))
+- fix typo [\#625](https://github.com/wix/detox/pull/625) ([vonovak](https://github.com/vonovak))
+- iOS: Add support for userActivity API [\#623](https://github.com/wix/detox/pull/623) ([LeoNatan](https://github.com/LeoNatan))
+- CLI: add -f option to run specific test file [\#616](https://github.com/wix/detox/pull/616) ([jeremyeaton89](https://github.com/jeremyeaton89))
+- iOS: perform actions on UIPickerView [\#605](https://github.com/wix/detox/pull/605) ([DmitryPonomarenko](https://github.com/DmitryPonomarenko))
+
+## [7.2.0](https://github.com/wix/detox/tree/7.2.0) (2018-03-12)
+[Full Changelog](https://github.com/wix/detox/compare/7.1.0...7.2.0)
+
+**Enhancements**
+
+- Clean up after build\_framework [\#577](https://github.com/wix/detox/pull/577) ([MatthieuLemoine](https://github.com/MatthieuLemoine))
+
+**Fixed Bugs**
+
+- Husky hooks bugged out when attempting a commit [\#606](https://github.com/wix/detox/issues/606)
+- Starting application from background with notification happens in foreground \(iOS\) [\#590](https://github.com/wix/detox/issues/590)
+- Find element by text doesn't function with minimal project on latest version of RN and detox [\#572](https://github.com/wix/detox/issues/572)
+- reason for test failure stopped being reported [\#5](https://github.com/wix/detox/issues/5)
+
+**Merged Pull Requests**
+
+- iOS: Improve notifications dispatch timing [\#604](https://github.com/wix/detox/pull/604) ([LeoNatan](https://github.com/LeoNatan))
+- Kill Android instrumentation and nullify the object when it crashes [\#603](https://github.com/wix/detox/pull/603) ([rotemmiz](https://github.com/rotemmiz))
+- Update Introduction.Android.md [\#596](https://github.com/wix/detox/pull/596) ([joegoodall1](https://github.com/joegoodall1))
+- Better support for multiple RN version in test project + updated example projects [\#591](https://github.com/wix/detox/pull/591) ([rotemmiz](https://github.com/rotemmiz))
+- Update Example .travis.yml in CI Guide [\#586](https://github.com/wix/detox/pull/586) ([mtmckenna](https://github.com/mtmckenna))
+- Use travis branch to determine master [\#580](https://github.com/wix/detox/pull/580) ([DanielMSchmidt](https://github.com/DanielMSchmidt))
+- Docs: Use jest.setTimeout instead of jasmine timeout [\#562](https://github.com/wix/detox/pull/562) ([thymikee](https://github.com/thymikee))
+- Add Support for ShakeDevice Action [\#559](https://github.com/wix/detox/pull/559) ([LeoNatan](https://github.com/LeoNatan))
+- Support testApk path for gradle builds with multiple flavor matrix [\#554](https://github.com/wix/detox/pull/554) ([sdg9](https://github.com/sdg9))
+- set location should not use comma [\#532](https://github.com/wix/detox/pull/532) ([hiaw](https://github.com/hiaw))
+- Generation: combining and string matchers for android [\#496](https://github.com/wix/detox/pull/496) ([DanielMSchmidt](https://github.com/DanielMSchmidt))
+
 ## [7.1.0](https://github.com/wix/detox/tree/7.1.0) (2018-02-12)
 [Full Changelog](https://github.com/wix/detox/compare/7.0.1...7.1.0)
 
@@ -56,7 +108,6 @@
 
 **Enhancements**
 
-- Code coverage reporting with other unit tests [\#470](https://github.com/wix/detox/issues/470)
 - Add automatic code formatting via prettier [\#223](https://github.com/wix/detox/issues/223)
 
 **Fixed Bugs**
@@ -112,6 +163,10 @@
 ## [6.0.2](https://github.com/wix/detox/tree/6.0.2) (2017-11-28)
 [Full Changelog](https://github.com/wix/detox/compare/6.0.1...6.0.2)
 
+**Closed Issues**
+
+- How to disable "The stdout and stderr logs" [\#429](https://github.com/wix/detox/issues/429)
+
 ## [6.0.1](https://github.com/wix/detox/tree/6.0.1) (2017-11-28)
 [Full Changelog](https://github.com/wix/detox/compare/6.0.0...6.0.1)
 
@@ -137,6 +192,14 @@
 - Timeout before emulator loads + terminated due to receipt of signal null [\#407](https://github.com/wix/detox/issues/407)
 - Detox fails to run tests with jest\(with both new and old implementations\) [\#363](https://github.com/wix/detox/issues/363)
 
+**Closed Issues**
+
+- Uncaught exception: bridge is not set [\#430](https://github.com/wix/detox/issues/430)
+- 2 Screen same layout Multiple Matches Issue  [\#257](https://github.com/wix/detox/issues/257)
+- Element Locating and Timeout [\#255](https://github.com/wix/detox/issues/255)
+- Can't run detox tests for the iOS native app [\#254](https://github.com/wix/detox/issues/254)
+- RCTSegmentedControl not matchable [\#227](https://github.com/wix/detox/issues/227)
+
 **Merged Pull Requests**
 
 - Unify all Detox packages versions [\#436](https://github.com/wix/detox/pull/436) ([rotemmiz](https://github.com/rotemmiz))
@@ -154,7 +217,7 @@
 - Add change log generation when publishing a version [\#409](https://github.com/wix/detox/issues/409)
 
 ## [5.10.1](https://github.com/wix/detox/tree/5.10.1) (2017-11-15)
-[Full Changelog](https://github.com/wix/detox/compare/detox@5.10.0...5.10.1)
+[Full Changelog](https://github.com/wix/detox/compare/detox-server@2.1.0...5.10.1)
 
 **Fixed Bugs**
 
@@ -164,11 +227,11 @@
 
 - New demo project for react native jest [\#370](https://github.com/wix/detox/pull/370) ([SMJ93](https://github.com/SMJ93))
 
-## [detox@5.10.0](https://github.com/wix/detox/tree/detox@5.10.0) (2017-11-13)
-[Full Changelog](https://github.com/wix/detox/compare/detox-server@2.1.0...detox@5.10.0)
-
 ## [detox-server@2.1.0](https://github.com/wix/detox/tree/detox-server@2.1.0) (2017-11-13)
-[Full Changelog](https://github.com/wix/detox/compare/detox@5.9.3...detox-server@2.1.0)
+[Full Changelog](https://github.com/wix/detox/compare/detox@5.10.0...detox-server@2.1.0)
+
+## [detox@5.10.0](https://github.com/wix/detox/tree/detox@5.10.0) (2017-11-13)
+[Full Changelog](https://github.com/wix/detox/compare/detox@5.9.3...detox@5.10.0)
 
 **Enhancements**
 
@@ -218,10 +281,6 @@
 **Fixed Bugs**
 
 - App launches but immediately closes [\#152](https://github.com/wix/detox/issues/152)
-
-**Closed Issues**
-
-- Please add ability to write custom logs [\#118](https://github.com/wix/detox/issues/118)
 
 **Merged Pull Requests**
 
@@ -284,10 +343,6 @@
 ## [detox@5.8.0](https://github.com/wix/detox/tree/detox@5.8.0) (2017-09-27)
 [Full Changelog](https://github.com/wix/detox/compare/detox@5.7.0...detox@5.8.0)
 
-**Closed Issues**
-
-- App Terminated Immediately After install and start running - RN 0.48.3 [\#281](https://github.com/wix/detox/issues/281)
-
 **Merged Pull Requests**
 
 - High grade Android Emulator/Device control [\#295](https://github.com/wix/detox/pull/295) ([rotemmiz](https://github.com/rotemmiz))
@@ -311,7 +366,6 @@
 **Closed Issues**
 
 - Error loading images with jest and detox [\#263](https://github.com/wix/detox/issues/263)
-- Is there any support for "TOAST" message test. [\#260](https://github.com/wix/detox/issues/260)
 - Generated GREYAction JS wrapper uses unsupported variable types [\#228](https://github.com/wix/detox/issues/228)
 
 **Merged Pull Requests**
@@ -434,20 +488,20 @@
 - Added optional percentage parameter to swipe action [\#162](https://github.com/wix/detox/pull/162) ([yedidyak](https://github.com/yedidyak))
 
 ## [detox@5.1.1](https://github.com/wix/detox/tree/detox@5.1.1) (2017-06-11)
-[Full Changelog](https://github.com/wix/detox/compare/detox-server@2.0.3...detox@5.1.1)
+[Full Changelog](https://github.com/wix/detox/compare/detox-cli@1.0.2...detox@5.1.1)
 
 **Merged Pull Requests**
 
 - fixed the crash on older react native versions where there’s no `\_nod… [\#160](https://github.com/wix/detox/pull/160) ([silyevsk](https://github.com/silyevsk))
 
-## [detox-server@2.0.3](https://github.com/wix/detox/tree/detox-server@2.0.3) (2017-06-07)
-[Full Changelog](https://github.com/wix/detox/compare/detox@5.1.0...detox-server@2.0.3)
+## [detox-cli@1.0.2](https://github.com/wix/detox/tree/detox-cli@1.0.2) (2017-06-07)
+[Full Changelog](https://github.com/wix/detox/compare/detox@5.1.0...detox-cli@1.0.2)
 
 ## [detox@5.1.0](https://github.com/wix/detox/tree/detox@5.1.0) (2017-06-07)
-[Full Changelog](https://github.com/wix/detox/compare/detox-cli@1.0.2...detox@5.1.0)
+[Full Changelog](https://github.com/wix/detox/compare/detox-server@2.0.3...detox@5.1.0)
 
-## [detox-cli@1.0.2](https://github.com/wix/detox/tree/detox-cli@1.0.2) (2017-06-07)
-[Full Changelog](https://github.com/wix/detox/compare/detox@5.0.12...detox-cli@1.0.2)
+## [detox-server@2.0.3](https://github.com/wix/detox/tree/detox-server@2.0.3) (2017-06-07)
+[Full Changelog](https://github.com/wix/detox/compare/detox-server@2.0.2...detox-server@2.0.3)
 
 **Enhancements**
 
@@ -468,11 +522,11 @@
 
 - Animations issue [\#150](https://github.com/wix/detox/pull/150) ([silyevsk](https://github.com/silyevsk))
 
-## [detox@5.0.12](https://github.com/wix/detox/tree/detox@5.0.12) (2017-05-29)
-[Full Changelog](https://github.com/wix/detox/compare/detox-server@2.0.2...detox@5.0.12)
-
 ## [detox-server@2.0.2](https://github.com/wix/detox/tree/detox-server@2.0.2) (2017-05-29)
-[Full Changelog](https://github.com/wix/detox/compare/detox@5.0.11...detox-server@2.0.2)
+[Full Changelog](https://github.com/wix/detox/compare/detox@5.0.12...detox-server@2.0.2)
+
+## [detox@5.0.12](https://github.com/wix/detox/tree/detox@5.0.12) (2017-05-29)
+[Full Changelog](https://github.com/wix/detox/compare/detox@5.0.11...detox@5.0.12)
 
 ## [detox@5.0.11](https://github.com/wix/detox/tree/detox@5.0.11) (2017-05-29)
 [Full Changelog](https://github.com/wix/detox/compare/detox-server@2.0.1...detox@5.0.11)
@@ -571,12 +625,12 @@
 
 **Enhancements**
 
+- Support es6 \(import, async await etc\) [\#62](https://github.com/wix/detox/issues/62)
 - Refactor invoke queue into promise queue and support inline awaits [\#38](https://github.com/wix/detox/issues/38)
 
 **Closed Issues**
 
 - \[iOS\] Fail to type text with azerty Keyboard  [\#92](https://github.com/wix/detox/issues/92)
-- Support es6 \(import, async await etc\) [\#62](https://github.com/wix/detox/issues/62)
 
 **Merged Pull Requests**
 
