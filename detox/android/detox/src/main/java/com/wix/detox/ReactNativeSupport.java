@@ -249,11 +249,6 @@ public class ReactNativeSupport {
 
         currentReactContext = reactContextHolder[0];
         setupEspressoIdlingResources(reactNativeHostHolder, reactContextHolder[0]);
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-            // do nothing
-        }
     }
 
     private static Object bridgeIdleSignaler = null;
