@@ -9,19 +9,16 @@ import org.joor.Reflect;
 import org.joor.ReflectException;
 
 /**
- * Created by simonracz on 26/07/2017.
+ * Created by simonracz on 06/04/2018.
  */
 
 /**
  * <p>
- * Espresso IdlingResource for React Native's UI Module.
+ * Espresso IdlingResource for React Native's RootViews layout requests.
  * </p>
  *
- * <p>
- * Hooks up to React Native internals to grab the pending ui operations from it.
- * </p>
  */
-public class ReactNativeUIModuleIdlingResource implements IdlingResource, Choreographer.FrameCallback {
+public class ReactRootViewIdlingResource implements IdlingResource, Choreographer.FrameCallback {
     private static final String LOG_TAG = "Detox";
 
     private final static String CLASS_UI_MANAGER_MODULE = "com.facebook.react.uimanager.UIManagerModule";
@@ -31,7 +28,12 @@ public class ReactNativeUIModuleIdlingResource implements IdlingResource, Choreo
     private final static String METHOD_HAS_NATIVE_MODULE = "hasNativeModule";
     private final static String METHOD_GET_UI_IMPLEMENTATION = "getUIImplementation";
     private final static String METHOD_GET_UI_OPERATION_QUEUE = "getUIViewOperationQueue";
+    private final static String METHOD_GET_VIEW_MANAGER = "getNativeViewHierarchyManager";
     private final static String METHOD_IS_EMPTY = "isEmpty";
+    private final static String METHOD_VALUE_AT = "valueAt";
+    private final static String METHOD_SIZE = "size";
+    private final static String METHOD_IS_LAYOUT_REQUESTED = "isLayoutRequested";
+    private final static String FIELD_GET_TAGS_TO_VIEWS = "mTagsToViews";    
     private final static String FIELD_DISPATCH_RUNNABLES = "mDispatchUIRunnables";
     private final static String FIELD_NON_BATCHES_OPERATIONS = "mNonBatchedOperations";
     private final static String LOCK_RUNNABLES = "mDispatchRunnablesLock";
@@ -40,13 +42,13 @@ public class ReactNativeUIModuleIdlingResource implements IdlingResource, Choreo
     private ResourceCallback callback = null;
     private Object reactContext = null;
 
-    public ReactNativeUIModuleIdlingResource(@NonNull Object reactContext) {
+    public ReactRootViewIdlingResource(@NonNull Object reactContext) {
         this.reactContext = reactContext;
     }
 
     @Override
     public String getName() {
-        return ReactNativeUIModuleIdlingResource.class.getName();
+        return ReactRootViewIdlingResource.class.getName();
     }
 
     @Override
@@ -67,10 +69,7 @@ public class ReactNativeUIModuleIdlingResource implements IdlingResource, Choreo
             // if called right after onReactContextInitialized(...)
             if (!(boolean) Reflect.on(reactContext).call(METHOD_HAS_CATALYST_INSTANCE).get()) {
                 Log.e(LOG_TAG, "No active CatalystInstance. Should never see this.");
-                if (callback != null) {
-                    callback.onTransitionToIdle();
-                }
-                return true;
+                return false;
             }
 
             if (!(boolean)Reflect.on(reactContext).call(METHOD_HAS_NATIVE_MODULE, uiModuleClass).get()) {
@@ -81,42 +80,37 @@ public class ReactNativeUIModuleIdlingResource implements IdlingResource, Choreo
                 return true;
             }
 
-            Object uiOperationQueue = Reflect.on(reactContext)
+            Object viewManager = Reflect.on(reactContext)
                     .call(METHOD_GET_NATIVE_MODULE, uiModuleClass)
                     .call(METHOD_GET_UI_IMPLEMENTATION)
                     .call(METHOD_GET_UI_OPERATION_QUEUE)
+                    .call(METHOD_GET_VIEW_MANAGER)
                     .get();
-            Object runnablesLock = Reflect.on(uiOperationQueue)
-                    .field(LOCK_RUNNABLES)
+            Object tagsToViews = Reflect.on(viewManager)
+                    .field(FIELD_GET_TAGS_TO_VIEWS)
                     .get();
-            Object operationsLock = Reflect.on(uiOperationQueue)
-                    .field(LOCK_OPERATIONS)
-                    .get();
-            boolean runnablesAreEmpty;
-            boolean nonBatchesOpsEmpty;
-            synchronized (runnablesLock) {
-                runnablesAreEmpty = (boolean) Reflect.on(uiOperationQueue)
-                        .field(FIELD_DISPATCH_RUNNABLES)
-                        .call(METHOD_IS_EMPTY).get();
-            }
-            synchronized (operationsLock) {
-                nonBatchesOpsEmpty = (boolean) Reflect.on(uiOperationQueue)
-                        .field(FIELD_NON_BATCHES_OPERATIONS)
-                        .call(METHOD_IS_EMPTY).get();
-            }
-            if (runnablesAreEmpty && nonBatchesOpsEmpty) {
-                if (callback != null) {
-                    callback.onTransitionToIdle();
-                }
-                // Log.i(LOG_TAG, "UIManagerModule is idle.");
-                return true;
-            }
 
-            Log.i(LOG_TAG, "UIManagerModule is busy.");
-            Choreographer.getInstance().postFrameCallback(this);
-            return false;
+            int nsize = Reflect.on(tagsToViews).call(METHOD_SIZE).get();
+
+            boolean layoutBitSet = false;
+            for (int i = 0; i < nsize; i++) {
+                layoutBitSet = (boolean) Reflect.on(tagsToViews)
+                    .call(METHOD_VALUE_AT, i)
+                    .call(METHOD_IS_LAYOUT_REQUESTED)
+                    .get();
+                if (layoutBitSet) {
+                    Choreographer.getInstance().postFrameCallback(this);
+                    Log.i(LOG_TAG, "LayoutRequestIR is busy in tag: " + Integer.toString(i));
+                    return false;
+                }
+            }            
+            
+            if (callback != null) {
+               callback.onTransitionToIdle();
+            }            
+            return true;
         } catch (ReflectException e) {
-            Log.e(LOG_TAG, "Can't set up RN UIModule listener", e.getCause());
+            Log.e(LOG_TAG, "Can't set up LayoutRequestIR", e.getCause());
         }
 
         if (callback != null) {
@@ -137,3 +131,5 @@ public class ReactNativeUIModuleIdlingResource implements IdlingResource, Choreo
         isIdleNow();
     }
 }
+
+

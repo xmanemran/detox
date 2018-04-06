@@ -5,13 +5,16 @@ import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Espresso;
 import android.util.Log;
+import android.os.Handler;
 
 import com.wix.detox.espresso.AnimatedModuleIdlingResource;
 import com.wix.detox.espresso.LooperIdlingResource;
 import com.wix.detox.espresso.ReactBridgeIdlingResource;
 import com.wix.detox.espresso.RNExperimentalNetworkIR;
+import com.wix.detox.espresso.ReactNativeUIUpdateIdlingResource;
 import com.wix.detox.espresso.ReactNativeTimersIdlingResource;
 import com.wix.detox.espresso.ReactNativeUIModuleIdlingResource;
+import com.wix.detox.espresso.ReactRootViewIdlingResource;
 
 import org.joor.Reflect;
 import org.joor.ReflectException;
@@ -49,11 +52,20 @@ public class ReactNativeSupport {
     private static final String INTERFACE_BRIDGE_IDLE_DEBUG_LISTENER =
             "com.facebook.react.bridge.NotThreadSafeBridgeIdleDebugListener";
 
+    private final static String INTERFACE_UI_UPDATE_LISTEER = 
+            "com.facebook.react.uimanager.debug.NotThreadSafeViewHierarchyUpdateDebugListener";
+
     private static final String FIELD_UI_MSG_QUEUE = "mUiMessageQueueThread";
     private static final String FIELD_UI_BG_MSG_QUEUE = "mUiBackgroundMessageQueueThread";
     private static final String FIELD_NATIVE_MODULES_MSG_QUEUE = "mNativeModulesMessageQueueThread";
     private static final String FIELD_JS_MSG_QUEUE = "mJSMessageQueueThread";
     private static final String METHOD_GET_LOOPER = "getLooper";
+
+    private final static String CLASS_UI_MANAGER_MODULE = "com.facebook.react.uimanager.UIManagerModule";
+    private final static String METHOD_HAS_CATALYST_INSTANCE = "hasActiveCatalystInstance";
+    private final static String METHOD_GET_UI_IMPLEMENTATION = "getUIImplementation";
+    private final static String METHOD_GET_UI_OPERATION_QUEUE = "getUIViewOperationQueue";
+    private final static String METHOD_SET_UI_UPDATE_LISTENER = "setViewHierarchyUpdateDebugListener";
 
     // Espresso has a public method to register Loopers.
     // BUT, they don't give you back a handle to them.
@@ -237,6 +249,11 @@ public class ReactNativeSupport {
 
         currentReactContext = reactContextHolder[0];
         setupEspressoIdlingResources(reactNativeHostHolder, reactContextHolder[0]);
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            // do nothing
+        }
     }
 
     private static Object bridgeIdleSignaler = null;
@@ -261,9 +278,32 @@ public class ReactNativeSupport {
         );
     }
 
+    private static Object uiUpdateListener = null;
+    private static ReactNativeUIUpdateIdlingResource rnUIUpdateIdlingResource = null;
+
+    private static void createUIUpdateListener() {
+        Class<?> uiUpdateListenerClass = null;
+        try {
+            uiUpdateListenerClass = Class.forName(INTERFACE_UI_UPDATE_LISTEER);
+        } catch (ClassNotFoundException e) {
+            Log.e(LOG_TAG, "Can't find NotThreadSafeViewHierarchyUpdateDebugListener", e);
+            return;
+        }
+
+        rnUIUpdateIdlingResource = new ReactNativeUIUpdateIdlingResource();
+
+        Class[] proxyInterfaces = new Class[]{uiUpdateListenerClass};
+        uiUpdateListener = Proxy.newProxyInstance(
+                uiUpdateListenerClass.getClassLoader(),
+                proxyInterfaces,
+                new Delegator(proxyInterfaces, new Object[] { rnUIUpdateIdlingResource })
+        );
+    }
+
     private static ReactNativeTimersIdlingResource rnTimerIdlingResource = null;
     private static ReactNativeUIModuleIdlingResource rnUIModuleIdlingResource = null;
     private static AnimatedModuleIdlingResource animIdlingResource = null;
+    private static ReactRootViewIdlingResource rootViewIdlingResource = null;
 
     private static void setupEspressoIdlingResources(
             @NonNull Object reactNativeHostHolder,
@@ -278,19 +318,35 @@ public class ReactNativeSupport {
                 .call(METHOD_GET_CATALYST_INSTANCE)
                 .call(METHOD_ADD_DEBUG_BRIDGE_LISTENER, bridgeIdleSignaler);
 
+        createUIUpdateListener();
+        Class<?> uiModuleClass = null;
+        try {
+            uiModuleClass = Class.forName(CLASS_UI_MANAGER_MODULE);
+        } catch (ClassNotFoundException e) {
+            Log.e(LOG_TAG, "UIManagerModule is not on classpath.");
+        }
+        Reflect.on(reactContext)
+                .call(METHOD_GET_NATIVE_MODULE, uiModuleClass)
+                .call(METHOD_GET_UI_IMPLEMENTATION)
+                .call(METHOD_GET_UI_OPERATION_QUEUE)
+                .call(METHOD_SET_UI_UPDATE_LISTENER, uiUpdateListener);
+
         rnTimerIdlingResource = new ReactNativeTimersIdlingResource(reactContext);
         rnUIModuleIdlingResource = new ReactNativeUIModuleIdlingResource(reactContext);
+        rootViewIdlingResource = new ReactRootViewIdlingResource(reactContext);
         animIdlingResource = new AnimatedModuleIdlingResource(reactContext);
-
-        Espresso.registerIdlingResources(
-                rnTimerIdlingResource,
-                rnBridgeIdlingResource,
-                rnUIModuleIdlingResource,
-                animIdlingResource);
 
         if (networkSyncEnabled) {
             setupNetworkIdlingResource();
         }
+
+        Espresso.registerIdlingResources(
+                rnUIUpdateIdlingResource,
+                rnTimerIdlingResource,
+                rnBridgeIdlingResource,
+                rnUIModuleIdlingResource,
+                rootViewIdlingResource,
+                animIdlingResource);
     }
 
     private static ArrayList<LooperIdlingResource> looperIdlingResources = new ArrayList<>();
@@ -352,17 +408,23 @@ public class ReactNativeSupport {
         Log.i(LOG_TAG, "Removing Espresso IdlingResources for React Native.");
 
         if (rnBridgeIdlingResource != null
+                && rnUIUpdateIdlingResource != null
                 && rnTimerIdlingResource != null
                 && rnUIModuleIdlingResource != null
+                && rootViewIdlingResource != null
                 && animIdlingResource != null) {
             Espresso.unregisterIdlingResources(
                     rnTimerIdlingResource,
                     rnBridgeIdlingResource,
+                    rnUIUpdateIdlingResource,
                     rnUIModuleIdlingResource,
+                    rootViewIdlingResource,
                     animIdlingResource);
             rnTimerIdlingResource = null;
             rnBridgeIdlingResource = null;
             rnUIModuleIdlingResource = null;
+            rnUIUpdateIdlingResource = null;
+            rootViewIdlingResource = null;
             animIdlingResource = null;
         }
 
@@ -380,6 +442,25 @@ public class ReactNativeSupport {
                         .call(METHOD_REMOVE_DEBUG_BRIDGE_LISTENER, bridgeIdleSignaler);
             }
             bridgeIdleSignaler = null;
+        }
+
+        if (uiUpdateListener != null) {
+            if (reactContext != null) {
+                final Object[] objHolder = new Object[1];
+                objHolder[0] = null;
+                Class<?> uiModuleClass = null;
+                try {
+                    uiModuleClass = Class.forName(CLASS_UI_MANAGER_MODULE);
+                } catch (ClassNotFoundException e) {
+                    Log.e(LOG_TAG, "UIManagerModule is not on classpath.");
+                }
+                Reflect.on(reactContext)
+                    .call(METHOD_GET_NATIVE_MODULE, uiModuleClass)
+                    .call(METHOD_GET_UI_IMPLEMENTATION)
+                    .call(METHOD_GET_UI_OPERATION_QUEUE)
+                    .call(METHOD_SET_UI_UPDATE_LISTENER, objHolder);
+            }
+            uiUpdateListener = null;
         }
     }
 

@@ -11,6 +11,7 @@ import android.support.test.espresso.ViewInteraction;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import com.wix.detox.ReactNativeSupport;
 

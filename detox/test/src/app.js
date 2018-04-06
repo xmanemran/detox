@@ -21,11 +21,15 @@ class example extends Component {
 
   renderButton(title, onPressCallback) {
     return (
+      <View>
+        <View style={{width: 50, height: 5, backgroundColor: '#FF5722'}} />
       <TouchableOpacity onPress={() => {
         onPressCallback();
       }}>
         <Text style={{color: 'blue', marginBottom: 20}}>{title}</Text>
       </TouchableOpacity>
+      </View>
+      
     );
   }
 
