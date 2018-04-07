@@ -22,6 +22,8 @@ public class ReactRootViewIdlingResource implements IdlingResource, Choreographe
     private static final String LOG_TAG = "Detox";
 
     private final static String CLASS_UI_MANAGER_MODULE = "com.facebook.react.uimanager.UIManagerModule";
+    private final static String CLASS_ROOT_VIEW = "com.facebook.react.ReactRootView";
+    private final static String CLASS_REACT_TEXT_VIEW = "com.facebook.react.views.text.ReactTextView";
 
     private final static String METHOD_HAS_CATALYST_INSTANCE = "hasActiveCatalystInstance";
     private final static String METHOD_GET_NATIVE_MODULE = "getNativeModule";
@@ -54,10 +56,12 @@ public class ReactRootViewIdlingResource implements IdlingResource, Choreographe
     @Override
     public boolean isIdleNow() {
         Class<?> uiModuleClass = null;
+        Class<?> reactTextViewClass = null;
         try {
             uiModuleClass = Class.forName(CLASS_UI_MANAGER_MODULE);
+            reactTextViewClass = Class.forName(CLASS_REACT_TEXT_VIEW);
         } catch (ClassNotFoundException e) {
-            Log.e(LOG_TAG, "UIManagerModule is not on classpath.");
+            Log.e(LOG_TAG, "UIManagerModule or ReactRootView is not on classpath.");
             if (callback != null) {
                 callback.onTransitionToIdle();
             }
@@ -94,13 +98,22 @@ public class ReactRootViewIdlingResource implements IdlingResource, Choreographe
 
             boolean layoutBitSet = false;
             for (int i = 0; i < nsize; i++) {
-                layoutBitSet = (boolean) Reflect.on(tagsToViews)
+                Object view = Reflect.on(tagsToViews)
                     .call(METHOD_VALUE_AT, i)
-                    .call(METHOD_IS_LAYOUT_REQUESTED)
                     .get();
+                /*
+                if (!reactTextViewClass.isInstance(view)) {
+                    layoutBitSet = (boolean) Reflect.on(view)
+                        .call(METHOD_IS_LAYOUT_REQUESTED)
+                        .get();
+                }*/
+                layoutBitSet = (boolean) Reflect.on(view)
+                        .call(METHOD_IS_LAYOUT_REQUESTED)
+                        .get();
+                
                 if (layoutBitSet) {
                     Choreographer.getInstance().postFrameCallback(this);
-                    Log.i(LOG_TAG, "LayoutRequestIR is busy in tag: " + Integer.toString(i));
+                    Log.i(LOG_TAG, "LayoutRequestIR is busy in tag: " + Integer.toString(i) + " " + view.getClass().getName());
                     return false;
                 }
             }            
