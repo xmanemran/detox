@@ -39,7 +39,31 @@ class Device {
     this._artifactsCopier.setArtifactsDestination(testArtifactsPath);
   }
 
-  async finalizeArtifacts() {
+  async prepareArtifacts() {
+    await this._takeScreenshot('screenshot-before');
+    await this._startVideo();
+  }
+
+  shouldKeepScreenshot(success) {
+    return  (this._deviceConfig.takeScreenshots === 'failing' && !success) ||
+             this._deviceConfig.takeScreenshots === 'true';
+  }
+
+  shouldKeepVideo(success) {
+    return (this._deviceConfig.recordVideos === 'failing' && !success) ||
+            this._deviceConfig.recordVideos === 'true'
+  }
+
+  async finalizeArtifacts(success = true) {
+    const keepVideo = this.shouldKeepVideo(success);
+    await this._stopVideo(keepVideo);
+
+    if (this.shouldKeepScreenshot(success)) {
+      await this._takeScreenshot('screenshot-after');
+    } else {
+      await this._artifactsCopier.dropArtifacts();
+    }
+
     await this._artifactsCopier.finalizeArtifacts();
   }
   
@@ -219,6 +243,33 @@ class Device {
 
   async _cleanup() {
     await this.deviceDriver.cleanup(this._deviceId, this._bundleId);
+    await this._artifactsCopier.processQueue();
+  }
+
+  async _takeScreenshot(name) {
+    if (this._deviceConfig.takeScreenshots) {
+      this._artifactsCopier.addArtifact(
+        await this.deviceDriver.takeScreenshot(this._deviceId),
+        name
+      );
+    }
+  }
+
+  async _startVideo() {
+    if (this._deviceConfig.recordVideos) {
+      await this.deviceDriver.startVideo(this._deviceId);
+    }
+  }
+
+  async _stopVideo(keep) {
+    const video = await this.deviceDriver.stopVideo(this._deviceId);
+    if (video) {
+      if (keep) {
+        this._artifactsCopier.queueArtifact(video, 'recording');
+      } else {
+        await video.remove();
+      }
+    }
   }
 
   _defaultLaunchArgs() {
