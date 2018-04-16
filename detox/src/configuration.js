@@ -1,4 +1,3 @@
-const CustomError = require('./errors/CustomError');
 const uuid = require('./utils/uuid');
 const getPort = require('get-port');
 
@@ -33,10 +32,6 @@ function throwOnEmptyType() {
 
 function throwOnEmptyBinaryPath() {
   throw new DetoxConfigError(`'binaryPath' property is missing, should hold the app binary path`);
-}
-
-class DetoxConfigError extends CustomError {
-
 }
 
 module.exports = {

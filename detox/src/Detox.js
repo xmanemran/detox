@@ -10,7 +10,7 @@ const Client = require('./client/Client');
 const DetoxServer = require('detox-server');
 const URL = require('url').URL;
 const _ = require('lodash');
-const ArtifactsPathsProvider = require('./artifacts/ArtifactsPathsProvider');
+const ArtifactsPathsProvider = require('../../detox-plugin-artifacts/lib/artifacts/ArtifactsPathsProvider');
 
 log.level = argparse.getArgValue('loglevel') || 'info';
 log.addLevel('wss', 999, {fg: 'blue', bg: 'black'}, 'wss');

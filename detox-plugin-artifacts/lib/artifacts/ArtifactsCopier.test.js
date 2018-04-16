@@ -2,7 +2,7 @@ jest.mock('child-process-promise');
 
 const ArtifactsCopier = require('./ArtifactsCopier');
 const FileArtifact = require('./FileArtifact');
-const DeviceDriverBase = require('../devices/DeviceDriverBase');
+const DeviceDriverBase = require('../../../detox/src/devices/DeviceDriverBase');
 const {exec} = require('child-process-promise');
 
 describe('ArtifactsCopier', () => {

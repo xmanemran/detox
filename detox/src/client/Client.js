@@ -1,7 +1,6 @@
 const AsyncWebSocket = require('./AsyncWebSocket');
 const actions = require('./actions/actions');
 const argparse = require('../utils/argparse');
-const retry = require('../utils/retry');
 
 class Client {
   constructor(config) {

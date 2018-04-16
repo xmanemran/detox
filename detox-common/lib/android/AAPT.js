@@ -1,8 +1,8 @@
 const _ = require('lodash');
 const exec = require('child-process-promise').exec;
-const Environment = require('../../utils/environment');
+const Environment = require('../utils/environment');
 const path = require('path');
-const fsext = require('../../utils/fsext');
+const fsext = require('../utils/fsext');
 
 class AAPT {
 

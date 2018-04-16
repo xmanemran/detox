@@ -1,8 +1,8 @@
 const path = require('path');
-const {execWithRetriesAndLogs, spawnAndLog} = require('../../utils/exec');
+const {execWithRetriesAndLogs, spawnAndLog} = require('../utils/exec');
 const _ = require('lodash');
 const EmulatorTelnet = require('./EmulatorTelnet');
-const Environment = require('../../utils/environment');
+const Environment = require('../utils/environment');
 
 class ADB {
 

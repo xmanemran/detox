@@ -1,10 +1,10 @@
 const path = require('path');
-const exec = require('../../utils/exec').execWithRetriesAndLogs;
+const exec = require('../utils/exec').execWithRetriesAndLogs;
 const spawn = require('child-process-promise').spawn;
 const _ = require('lodash');
 const log = require('npmlog');
 const fs = require('fs');
-const Environment = require('../../utils/environment');
+const Environment = require('../utils/environment');
 const Tail = require('tail').Tail;
 
 class Emulator {

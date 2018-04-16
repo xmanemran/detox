@@ -1,6 +1,6 @@
 const path = require('path');
 const log = require('npmlog');
-const sh = require('../utils/sh');
+const sh = require('../../../detox/src/utils/sh');
 
 class ArtifactsCopier {
   constructor(deviceDriver) {

@@ -4,7 +4,7 @@ const program = require('commander');
 const path = require('path');
 const cp = require('child_process');
 const _ = require('lodash');
-const CustomError = require('../src/errors/CustomError');
+const CustomError = require('../../detox-common/lib/errors/CustomError');
 const config = require(path.join(process.cwd(), 'package.json')).detox;
 
 class DetoxConfigError extends CustomError {}

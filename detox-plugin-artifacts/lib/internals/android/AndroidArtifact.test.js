@@ -1,5 +1,5 @@
 const AndroidArtifact = require('./AndroidArtifact');
-const ADB = require('./ADB');
+const ADB = require('../../../../detox-common/lib/android/ADB');
 
 describe('AndroidArtifact', () => {
   let adb;

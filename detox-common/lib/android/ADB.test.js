@@ -13,7 +13,7 @@ xdescribe('ADB', () => {
     EmulatorTelnet = require('./EmulatorTelnet');
 
     jest.mock('../../utils/exec');
-    exec = require('../../utils/exec').execWithRetriesAndLogs;
+    exec = require('../utils/exec').execWithRetriesAndLogs;
     adb = new ADB();
   });
 

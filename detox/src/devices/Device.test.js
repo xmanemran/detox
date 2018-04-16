@@ -29,7 +29,7 @@ describe('Device', () => {
     sh.cp = jest.fn();
     sh.rm = jest.fn();
 
-    FileArtifact = require('../artifacts/FileArtifact');
+    FileArtifact = require('../../../detox-plugin-artifacts/lib/artifacts/FileArtifact');
 
     jest.mock('../client/Client');
     jest.mock('../utils/argparse');

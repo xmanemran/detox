@@ -1,5 +1,5 @@
 const log = require('npmlog');
-const retry = require('../utils/retry');
+const retry = require('./retry');
 const {exec, spawn} = require('child-process-promise');
 
 let _operationCounter = 0;

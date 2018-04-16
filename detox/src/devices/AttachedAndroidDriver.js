@@ -1,4 +1,4 @@
-const Emulator = require('./android/Emulator');
+const Emulator = require('../../../detox-common/lib/android/Emulator');
 const AndroidDriver = require('./AndroidDriver');
 
 class AttachedAndroidDriver extends AndroidDriver {

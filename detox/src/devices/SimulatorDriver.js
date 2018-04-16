@@ -3,10 +3,10 @@ const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
 const IosDriver = require('./IosDriver');
-const AppleSimUtils = require('./AppleSimUtils');
+const AppleSimUtils = require('../../../detox-common/lib/ios/AppleSimUtils');
 const configuration = require('../configuration');
-const environment = require('../utils/environment');
-const FileArtifact = require('../artifacts/FileArtifact');
+const environment = require('../../../detox-common/lib/utils/environment');
+const FileArtifact = require('../../../detox-plugin-artifacts/lib/artifacts/FileArtifact');
 
 class SimulatorDriver extends IosDriver {
 

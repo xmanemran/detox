@@ -1,5 +1,5 @@
 const ArtifactBase = require('./ArtifactBase');
-const sh = require('../utils/sh');
+const sh = require('../../../detox/src/utils/sh');
 
 class FileArtifact extends ArtifactBase {
   async copy(destination) {
