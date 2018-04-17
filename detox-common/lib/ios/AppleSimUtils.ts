@@ -1,73 +1,82 @@
-const _ = require('lodash');
-const tempfile = require('tempfile');
-const cpp = require('child-process-promise');
-const exec = require('../utils/exec');
-const retry = require('../utils/retry');
-const environment = require('../utils/environment');
+import _ from "lodash";
+import * as exec from "../utils/exec";
+import tempfile from "tempfile";
+import environment from "../utils/environment";
+import retry from "../utils/retry";
 
-class AppleSimUtils {
+export class AppleSimUtils {
 
-  async setPermissions(udid, bundleId, permissionsObj) {
+  public async setPermissions(udid: string, bundleId: string, permissionsObj: Record<string, string>): Promise<void> {
     const statusLogs = {
       trying: `Trying to set permissions...`,
-      successful: 'Permissions are set'
+      successful: "Permissions are set"
     };
-    let permissions = [];
+
+    const permissions: string[] = [];
     _.forEach(permissionsObj, function (shouldAllow, permission) {
-      permissions.push(permission + '=' + shouldAllow);
+      permissions.push(permission + "=" + shouldAllow);
     });
+
     await this._execAppleSimUtils({
-      args: `--simulator ${udid} --bundle ${bundleId} --setPermissions ${_.join(permissions, ',')}`
+      args: `--simulator ${udid} --bundle ${bundleId} --setPermissions ${_.join(permissions, ",")}`
     }, statusLogs, 1);
   }
 
-  async findDeviceUDID(query) {
+  public async findDeviceUDID(query: string): Promise<string> {
     const statusLogs = {
       trying: `Searching for device matching ${query}...`
     };
-    let correctQuery = this._correctQueryWithOS(query);
+    const correctQuery = this._correctQueryWithOS(query);
     const response = await this._execAppleSimUtils({ args: `--list "${correctQuery}" --maxResults=1` }, statusLogs, 1);
     const parsed = this._parseResponseFromAppleSimUtils(response);
-    const udid = _.get(parsed, [0, 'udid']);
+    const udid = _.get(parsed, [0, "udid"]);
     if (!udid) {
       throw new Error(`Can't find a simulator to match with "${query}", run 'xcrun simctl list' to list your supported devices.
       It is advised to only state a device type, and not to state iOS version, e.g. "iPhone 7"`);
     }
+
     return udid;
   }
 
-  async findDeviceByUDID(udid) {
+  public async findDeviceByUDID(udid: string): Promise<any> {
     const response = await this._execAppleSimUtils({ args: `--list` }, undefined, 1);
     const parsed = this._parseResponseFromAppleSimUtils(response);
+
     const device = _.find(parsed, (device) => _.isEqual(device.udid, udid));
     if (!device) {
       throw new Error(`Can't find device ${udid}`);
     }
+
     return device;
   }
 
-  async waitForDeviceState(udid, state) {
+  public async waitForDeviceState(udid: string, state: string): Promise<any> {
     let device;
+
     await retry({ retries: 10, interval: 1000 }, async () => {
       device = await this.findDeviceByUDID(udid);
       if (!_.isEqual(device.state, state)) {
         throw new Error(`device is in state '${device.state}'`);
       }
     });
+
     return device;
   }
 
-  async boot(udid) {
+  public async boot(udid: string): Promise<boolean | undefined> {
     const device = await this.findDeviceByUDID(udid);
-    if (_.isEqual(device.state, 'Booted') || _.isEqual(device.state, 'Booting')) {
+    if (_.isEqual(device.state, "Booted") || _.isEqual(device.state, "Booting")) {
       return false;
     }
-    await this.waitForDeviceState(udid, 'Shutdown');
+
+    await this.waitForDeviceState(udid, "Shutdown");
     await this._bootDeviceByXcodeVersion(udid);
-    await this.waitForDeviceState(udid, 'Booted');
+    await this.waitForDeviceState(udid, "Booted");
+
+    return (void 0);
   }
 
-  async install(udid, absPath) {
+  public async install(udid: string, absPath: string): Promise<void> {
     const statusLogs = {
       trying: `Installing ${absPath}...`,
       successful: `${absPath} installed`
@@ -75,11 +84,12 @@ class AppleSimUtils {
     await this._execSimctl({ cmd: `install ${udid} "${absPath}"`, statusLogs });
   }
 
-  async uninstall(udid, bundleId) {
+  public async uninstall(udid: string, bundleId: string): Promise<void> {
     const statusLogs = {
       trying: `Uninstalling ${bundleId}...`,
       successful: `${bundleId} uninstalled`
     };
+
     try {
       await this._execSimctl({ cmd: `uninstall ${udid} ${bundleId}`, statusLogs });
     } catch (e) {
@@ -87,7 +97,7 @@ class AppleSimUtils {
     }
   }
 
-  async launch(udid, bundleId, launchArgs) {
+  public async launch(udid: string, bundleId: string, launchArgs: string[]) {
     const frameworkPath = await environment.getFrameworkPath();
     const logsInfo = new LogsInfo(udid);
     const args = this._joinLaunchArgs(launchArgs);
@@ -96,27 +106,29 @@ class AppleSimUtils {
     return this._parseLaunchId(result);
   }
 
-  async sendToHome(udid) {
+  public async sendToHome(udid: string): Promise<void> {
     await this._execSimctl({ cmd: `launch ${udid} com.apple.springboard`, retries: 10 });
   }
 
-  getLogsPaths(udid) {
+  public getLogsPaths(udid: string) {
     const logsInfo = new LogsInfo(udid);
+
     return {
       stdout: logsInfo.absStdout,
       stderr: logsInfo.absStderr
-    }
+    };
   }
 
-  async terminate(udid, bundleId) {
+  public async terminate(udid: string, bundleId: string): Promise<void> {
     const statusLogs = {
       trying: `Terminating ${bundleId}...`,
       successful: `${bundleId} terminated`
     };
+
     await this._execSimctl({ cmd: `terminate ${udid} ${bundleId}`, statusLogs });
   }
 
-  async shutdown(udid) {
+  public async shutdown(udid: string): Promise<void> {
     const statusLogs = {
       trying: `Shutting down ${udid}...`,
       successful: `${udid} shut down`
@@ -124,13 +136,13 @@ class AppleSimUtils {
     await this._execSimctl({ cmd: `shutdown ${udid}`, statusLogs });
   }
 
-  async openUrl(udid, url) {
+  public async openUrl(udid: string, url: string): Promise<void> {
     await this._execSimctl({ cmd: `openurl ${udid} ${url}` });
   }
 
-  async setLocation(udid, lat, lon) {
+  public async setLocation(udid: string, lat: string, lon: string): Promise<void> {
     const result = await exec.execWithRetriesAndLogs(`which fbsimctl`, undefined, undefined, 1);
-    if (_.get(result, 'stdout')) {
+    if (_.get(result, "stdout")) {
       await exec.execWithRetriesAndLogs(`fbsimctl ${udid} set_location ${lat} ${lon}`, undefined, undefined, 1);
     } else {
       throw new Error(`setLocation currently supported only through fbsimctl.
@@ -139,65 +151,69 @@ class AppleSimUtils {
     }
   }
 
-  async resetContentAndSettings(udid) {
+  public async resetContentAndSettings(udid: string): Promise<void> {
     await this.shutdown(udid);
     await this._execSimctl({ cmd: `erase ${udid}` });
     await this.boot(udid);
   }
 
-  async getXcodeVersion() {
+  public async getXcodeVersion(): Promise<number> {
     const raw = await exec.execWithRetriesAndLogs(`xcodebuild -version`, undefined, undefined, 1);
-    const stdout = _.get(raw, 'stdout', 'undefined');
+    const stdout = _.get(raw, "stdout", "undefined");
     const match = /^Xcode (\S+)\.*\S*\s*/.exec(stdout);
-    const majorVersion = parseInt(_.get(match, '[1]'));
+    const majorVersion = parseInt(_.get(match, "[1]"));
     if (!_.isInteger(majorVersion) || majorVersion < 1) {
       throw new Error(`Can't read Xcode version, got: '${stdout}'`);
     }
     return majorVersion;
   }
 
-  async takeScreenshot(udid) {
-    const dest = tempfile('.png');
+  public async takeScreenshot(udid: string) {
+    const dest = tempfile(".png");
     await this._execSimctl({cmd: `io ${udid} screenshot ${dest}`});
     return dest;
   }
 
-  startVideo(udid) {
-    const dest = tempfile('.mp4');
-    const promise = exec.spawnAndLog('/usr/bin/xcrun', ['simctl', 'io', udid, 'recordVideo', dest]);
+  public startVideo(udid: string) {
+    const dest = tempfile(".mp4");
+    const promise = exec.spawnAndLog("/usr/bin/xcrun", ["simctl", "io", udid, "recordVideo", dest]);
     const process = promise.childProcess;
+
     return {promise, process, dest};
   }
 
-  stopVideo(udid, {promise, process, dest}) {
+  public stopVideo(_udid: string, {promise, process, dest}: {promise: Promise<any>; process: NodeJS.Process; dest: string; }): Promise<string> {
     return new Promise((resolve) => {
       promise.then(() => resolve(dest));
       process.kill(2);
     });
   }
 
-  async _execAppleSimUtils(options, statusLogs, retries, interval) {
+  public async _execAppleSimUtils(options: any, statusLogs: any, retries: number, interval?: number) {
     const bin = `applesimutils`;
+
     return await exec.execWithRetriesAndLogs(bin, options, statusLogs, retries, interval);
   }
 
-  async _execSimctl({ cmd, statusLogs = {}, retries = 1 }) {
+  public async _execSimctl(options: { cmd: string; statusLogs?: any; retries?: number; }) {
+    const { cmd, statusLogs = {}, retries = 1 } = options;
+
     return await exec.execWithRetriesAndLogs(`/usr/bin/xcrun simctl ${cmd}`, undefined, statusLogs, retries);
   }
 
-  _correctQueryWithOS(query) {
+  public _correctQueryWithOS(query: string) {
     let correctQuery = query;
-    if (_.includes(query, ',')) {
-      const parts = _.split(query, ',');
+    if (_.includes(query, ",")) {
+      const parts = _.split(query, ",");
       correctQuery = `${parts[0].trim()}, OS=${parts[1].trim()}`;
     }
     return correctQuery;
   }
 
-  _parseResponseFromAppleSimUtils(response) {
-    let out = _.get(response, 'stdout');
+  public _parseResponseFromAppleSimUtils(response: any): any {
+    let out = _.get(response, "stdout");
     if (_.isEmpty(out)) {
-      out = _.get(response, 'stderr');
+      out = _.get(response, "stderr");
     }
     if (_.isEmpty(out)) {
       return undefined;
@@ -214,7 +230,7 @@ class AppleSimUtils {
     return parsed;
   }
 
-  async _bootDeviceByXcodeVersion(udid) {
+  public async _bootDeviceByXcodeVersion(udid: string) {
     const xcodeVersion = await this.getXcodeVersion();
     if (xcodeVersion >= 9) {
       const statusLogs = { trying: `Booting device ${udid}` };
@@ -224,18 +240,18 @@ class AppleSimUtils {
     }
   }
 
-  async _bootDeviceMagically(udid) {
+  public async _bootDeviceMagically(udid: string) {
     const cmd = "/bin/bash -c '`xcode-select -p`/Applications/Simulator.app/Contents/MacOS/Simulator " +
       `--args -CurrentDeviceUDID ${udid} -ConnectHardwareKeyboard 0 ` +
       "-DeviceSetPath $HOME/Library/Developer/CoreSimulator/Devices > /dev/null 2>&1 < /dev/null &'";
     await exec.execWithRetriesAndLogs(cmd, undefined, { trying: `Launching device ${udid}...` }, 1);
   }
 
-  _joinLaunchArgs(launchArgs) {
-    return _.map(launchArgs, (v, k) => `${k} ${v}`).join(' ').trim();
+  public _joinLaunchArgs(launchArgs: string[]): string {
+    return _.map(launchArgs, (v, k) => `${k} ${v}`).join(" ").trim();
   }
 
-  async _launchMagically(frameworkPath, logsInfo, udid, bundleId, args) {
+  public async _launchMagically(frameworkPath: string, logsInfo: LogsInfo, udid: string, bundleId: string, args: string) {
     const statusLogs = {
       trying: `Launching ${bundleId}...`,
       successful: `${bundleId} launched. The stdout and stderr logs were recreated, you can watch them with:\n` +
@@ -250,21 +266,28 @@ class AppleSimUtils {
     return await exec.execWithRetriesAndLogs(launchBin, undefined, statusLogs, 1);
   }
 
-  _parseLaunchId(result) {
-    return parseInt(_.get(result, 'stdout', ':').trim().split(':')[1]);
+  public _parseLaunchId(result: any): number {
+    return parseInt(_.get(result, "stdout", ":").trim().split(":")[1]);
   }
 }
 
-class LogsInfo {
-  constructor(udid) {
-    const logPrefix = '/tmp/detox.last_launch_app_log.';
-    this.simStdout = logPrefix + 'out';
-    this.simStderr = logPrefix + 'err';
-    const simDataRoot = `$HOME/Library/Developer/CoreSimulator/Devices/${udid}/data`;
-    this.absStdout = simDataRoot + this.simStdout;
-    this.absStderr = simDataRoot + this.simStderr;
-    this.absJoined = `${simDataRoot}${logPrefix}{out,err}`
-  }
+export class LogsInfo {
+    public readonly simStdout: string;
+    public readonly simStderr: string;
+    public readonly absStdout: string;
+    public readonly absStderr: string;
+    public readonly absJoined: string;
+
+    constructor(udid: string) {
+        const logPrefix = "/tmp/detox.last_launch_app_log.";
+        const simDataRoot = `$HOME/Library/Developer/CoreSimulator/Devices/${udid}/data`;
+
+        this.simStdout = logPrefix + "out";
+        this.simStderr = logPrefix + "err";
+        this.absStdout = simDataRoot + this.simStdout;
+        this.absStderr = simDataRoot + this.simStderr;
+        this.absJoined = `${simDataRoot}${logPrefix}{out,err}`;
+    }
 }
 
-module.exports = AppleSimUtils;
+export default AppleSimUtils;

@@ -1,10 +1,6 @@
+import * as string from "./string";
+
 describe('string', () => {
-  let string;
-
-  beforeEach(() => {
-    string = require('./string');
-  });
-
   describe('lowerCamelCaseJoin', () => {
     it(`should capitalize first letter of each array item after the first`, () => {
       expect(string.lowerCamelCaseJoin(['foo', 'bar'])).toBe('fooBar');

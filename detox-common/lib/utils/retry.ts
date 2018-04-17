@@ -1,8 +1,8 @@
 const DEFAULT_RETRIES = 10;
 const DEFAULT_INTERVAL = 500;
 
-async function retry(options, func) {
-  if (typeof options === 'function') {
+async function retry(options: any, func?: any): Promise<any> {
+  if (typeof options === "function") {
     func = options;
     options = {};
   }
@@ -26,4 +26,4 @@ async function retry(options, func) {
   }
 }
 
-module.exports = retry;
+export default retry;

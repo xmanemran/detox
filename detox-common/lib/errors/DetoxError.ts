@@ -1,5 +1,5 @@
-class DetoxError extends Error {
-  constructor(message) {
+export class DetoxError extends Error {
+  constructor(message?: string) {
     super(message);
     Error.stackTraceLimit = 0;
 
@@ -8,4 +8,4 @@ class DetoxError extends Error {
   }
 }
 
-module.exports = DetoxError;
+export default DetoxError;

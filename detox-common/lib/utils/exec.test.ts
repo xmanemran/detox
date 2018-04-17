@@ -1,19 +1,19 @@
-const _ = require('lodash');
+const _ = require("lodash");
 
-describe('exec', () => {
+describe("exec", () => {
   let exec;
   let cpp;
 
   beforeEach(() => {
-    jest.mock('npmlog');
-    jest.mock('child-process-promise');
-    cpp = require('child-process-promise');
-    exec = require('./exec');
+    jest.mock("npmlog");
+    jest.mock("child-process-promise");
+    cpp = require("child-process-promise");
+    exec = require("./exec");
   });
 
   it(`exec command with no arguments successfully`, async () => {
     mockCppSuccessful(cpp);
-    await exec.execWithRetriesAndLogs('bin');
+    await exec.execWithRetriesAndLogs("bin");
     expect(cpp.exec).toHaveBeenCalledWith(`bin`);
   });
 
@@ -21,7 +21,7 @@ describe('exec', () => {
     const successfulResult = returnSuccessfulNoValue();
     const resolvedPromise = Promise.resolve(successfulResult);
     cpp.exec.mockReturnValueOnce(resolvedPromise);
-    await exec.execWithRetriesAndLogs('bin');
+    await exec.execWithRetriesAndLogs("bin");
     expect(cpp.exec).toHaveBeenCalledWith(`bin`);
   });
 
@@ -29,7 +29,7 @@ describe('exec', () => {
     mockCppSuccessful(cpp);
 
     const options = {args: `--argument 123`};
-    await exec.execWithRetriesAndLogs('bin', options);
+    await exec.execWithRetriesAndLogs("bin", options);
 
     expect(cpp.exec).toHaveBeenCalledWith(`bin --argument 123`);
   });
@@ -41,7 +41,7 @@ describe('exec', () => {
       args: `--argument 123`,
       prefix: `export MY_PREFIX`
     };
-    await exec.execWithRetriesAndLogs('bin', options);
+    await exec.execWithRetriesAndLogs("bin", options);
 
     expect(cpp.exec).toHaveBeenCalledWith(`export MY_PREFIX && bin --argument 123`);
   });
@@ -54,7 +54,7 @@ describe('exec', () => {
       trying: `trying status log`,
       successful: `successful status log`
     };
-    await exec.execWithRetriesAndLogs('bin', options, statusLogs);
+    await exec.execWithRetriesAndLogs("bin", options, statusLogs);
 
     expect(cpp.exec).toHaveBeenCalledWith(`bin --argument 123`);
   });
@@ -62,21 +62,21 @@ describe('exec', () => {
   it(`exec command with undefined return should throw`, async () => {
     cpp.exec.mockReturnValueOnce(undefined);
     try {
-      await exec.execWithRetriesAndLogs('bin');
-      fail('should throw');
+      await exec.execWithRetriesAndLogs("bin");
+      fail("should throw");
     } catch (ex) {
       expect(ex).toBeDefined();
     }
   });
 
   it(`exec command and fail`, async () => {
-    const errorResult = returnErrorWithValue('error result');
+    const errorResult = returnErrorWithValue("error result");
     const rejectedPromise = Promise.reject(errorResult);
     cpp.exec.mockReturnValueOnce(rejectedPromise);
 
     try {
-      await exec.execWithRetriesAndLogs('bin', null, '', 1, 1);
-      fail('expected execWithRetriesAndLogs() to throw');
+      await exec.execWithRetriesAndLogs("bin", null, "", 1, 1);
+      fail("expected execWithRetriesAndLogs() to throw");
     } catch (object) {
       expect(cpp.exec).toHaveBeenCalledWith(`bin`);
       expect(object).toBeDefined();
@@ -84,7 +84,7 @@ describe('exec', () => {
   });
 
   it(`exec command with multiple failures`, async () => {
-    const errorResult = returnErrorWithValue('error result');
+    const errorResult = returnErrorWithValue("error result");
     const rejectedPromise = Promise.reject(errorResult);
     cpp.exec.mockReturnValueOnce(rejectedPromise)
        .mockReturnValueOnce(rejectedPromise)
@@ -93,8 +93,8 @@ describe('exec', () => {
        .mockReturnValueOnce(rejectedPromise)
        .mockReturnValueOnce(rejectedPromise);
     try {
-      await exec.execWithRetriesAndLogs('bin', null, '', 6, 1);
-      fail('expected execWithRetriesAndLogs() to throw');
+      await exec.execWithRetriesAndLogs("bin", null, "", 6, 1);
+      fail("expected execWithRetriesAndLogs() to throw");
     } catch (object) {
       expect(cpp.exec).toHaveBeenCalledWith(`bin`);
       expect(cpp.exec).toHaveBeenCalledTimes(6);
@@ -103,9 +103,9 @@ describe('exec', () => {
   });
 
   it(`exec command with multiple failures and then a success`, async () => {
-    const errorResult = returnErrorWithValue('error result');
+    const errorResult = returnErrorWithValue("error result");
     const rejectedPromise = Promise.reject(errorResult);
-    const successfulResult = returnSuccessfulWithValue('successful result');
+    const successfulResult = returnSuccessfulWithValue("successful result");
     const resolvedPromise = Promise.resolve(successfulResult);
 
     cpp.exec.mockReturnValueOnce(rejectedPromise)
@@ -115,60 +115,60 @@ describe('exec', () => {
        .mockReturnValueOnce(rejectedPromise)
        .mockReturnValueOnce(resolvedPromise);
 
-    await exec.execWithRetriesAndLogs('bin', null, '', 6, 1);
+    await exec.execWithRetriesAndLogs("bin", null, "", 6, 1);
     expect(cpp.exec).toHaveBeenCalledWith(`bin`);
     expect(cpp.exec).toHaveBeenCalledTimes(6);
   });
 });
 
-describe('spawn', () => {
+describe("spawn", () => {
   let exec;
   let cpp;
   let log;
 
   beforeEach(() => {
-    jest.mock('npmlog');
-    jest.mock('child-process-promise');
-    cpp = require('child-process-promise');
-    exec = require('./exec');
-    log = require('npmlog');
+    jest.mock("npmlog");
+    jest.mock("child-process-promise");
+    cpp = require("child-process-promise");
+    exec = require("./exec");
+    log = require("npmlog");
     cpp.spawn.mockReturnValue({});
   });
 
-  it('spawns detached command with ignored input and piped output', () => {
-    const command = 'command';
-    const flags = ['--some', '--value', Math.random()];
+  it("spawns detached command with ignored input and piped output", () => {
+    const command = "command";
+    const flags = ["--some", "--value", Math.random()];
 
     exec.spawnAndLog(command, flags);
 
     expect(cpp.spawn).toBeCalledWith(command, flags, {
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: ["ignore", "pipe", "pipe"],
       detached: true
     });
   });
 
-  it('should collect output and log it', async () => {
+  it("should collect output and log it", async () => {
     cpp.spawn.mockReturnValue({
       childProcess: {
-        stdout: toStream('hello'),
-        stderr: toStream('world')
+        stdout: toStream("hello"),
+        stderr: toStream("world")
       }
     });
 
-    exec.spawnAndLog('command', []);
+    exec.spawnAndLog("command", []);
     await nextCycle();
 
-    expect(log.verbose).toBeCalledWith('stdout:', 'hello');
-    expect(log.verbose).toBeCalledWith('stderr:', 'world');
+    expect(log.verbose).toBeCalledWith("stdout:", "hello");
+    expect(log.verbose).toBeCalledWith("stderr:", "world");
   });
 });
 
 function nextCycle() {
-  return new Promise(resolve => setTimeout(resolve));
+  return new Promise((resolve) => setTimeout(resolve));
 }
 
 function toStream(string) {
-  const {Readable} = require('stream');
+  const {Readable} = require("stream");
   const stream = new Readable();
   stream._read = () => {};
   stream.push(string);
@@ -208,10 +208,9 @@ function returnSuccessfulNoValue() {
 }
 
 function mockCppSuccessful(cpp) {
-  const successfulResult = returnSuccessfulWithValue('successful result');
+  const successfulResult = returnSuccessfulWithValue("successful result");
   const resolvedPromise = Promise.resolve(successfulResult);
   cpp.exec.mockReturnValueOnce(resolvedPromise);
 
   return successfulResult;
 }
-
