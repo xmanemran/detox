@@ -17,6 +17,6 @@
     "esModuleInterop": true
   },
   "include": [
-    "lib/index*.ts"
+    "lib/*index.ts"
   ]
 }

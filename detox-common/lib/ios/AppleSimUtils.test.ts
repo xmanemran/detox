@@ -1,11 +1,10 @@
-import retry from "../utils/retry";
-
 describe("AppleSimUtils", () => {
   let AppleSimUtils;
   let uut: IAppleSimUtils;
   let exec: jest.Mocked<IExecModule>;
   let environment: jest.Mocked<IEnvironmentModule>;
   let tempfile: jest.MockInstance<(x: string) => string>;
+  let retry: jest.MockInstance<(options: any, func?: any) => Promise<any>>;
 
   const simUdid = `9C9ABE4D-70C7-49DC-A396-3CB1D0E82846`;
   const bundleId = "bundle.id";
@@ -15,12 +14,13 @@ describe("AppleSimUtils", () => {
     jest.mock("../utils/exec");
     exec = require("../utils/exec");
     jest.mock("../utils/retry");
-    jest.mock("../utils/environment");
-    environment = require("../utils/environment");
+    retry = require("../utils/retry").default;
+    jest.mock("../utils/environment")
+    environment = require("../utils/environment").default;
     jest.mock("tempfile");
     tempfile = require("tempfile");
 
-    AppleSimUtils = require("./AppleSimUtils");
+    AppleSimUtils = require("./AppleSimUtils").default;
     uut = new AppleSimUtils();
   });
 

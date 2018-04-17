@@ -4,7 +4,7 @@ import tempfile from "tempfile";
 import environment from "../utils/environment";
 import retry from "../utils/retry";
 
-export class AppleSimUtils {
+export class AppleSimUtils implements IAppleSimUtils {
 
   public async setPermissions(udid: string, bundleId: string, permissionsObj: Record<string, string>): Promise<void> {
     const statusLogs = {
@@ -182,7 +182,7 @@ export class AppleSimUtils {
     return {promise, process, dest};
   }
 
-  public stopVideo(_udid: string, {promise, process, dest}: {promise: Promise<any>; process: NodeJS.Process; dest: string; }): Promise<string> {
+  public stopVideo(_udid: string, {promise, process, dest}: AppleSimUtilsVideoObject): Promise<string> {
     return new Promise((resolve) => {
       promise.then(() => resolve(dest));
       process.kill(2);
@@ -201,7 +201,7 @@ export class AppleSimUtils {
     return await exec.execWithRetriesAndLogs(`/usr/bin/xcrun simctl ${cmd}`, undefined, statusLogs, retries);
   }
 
-  public _correctQueryWithOS(query: string) {
+  private _correctQueryWithOS(query: string) {
     let correctQuery = query;
     if (_.includes(query, ",")) {
       const parts = _.split(query, ",");
@@ -210,7 +210,7 @@ export class AppleSimUtils {
     return correctQuery;
   }
 
-  public _parseResponseFromAppleSimUtils(response: any): any {
+  private _parseResponseFromAppleSimUtils(response: any): any {
     let out = _.get(response, "stdout");
     if (_.isEmpty(out)) {
       out = _.get(response, "stderr");
@@ -247,7 +247,7 @@ export class AppleSimUtils {
     await exec.execWithRetriesAndLogs(cmd, undefined, { trying: `Launching device ${udid}...` }, 1);
   }
 
-  public _joinLaunchArgs(launchArgs: string[]): string {
+  private _joinLaunchArgs(launchArgs: string[]): string {
     return _.map(launchArgs, (v, k) => `${k} ${v}`).join(" ").trim();
   }
 
@@ -266,7 +266,7 @@ export class AppleSimUtils {
     return await exec.execWithRetriesAndLogs(launchBin, undefined, statusLogs, 1);
   }
 
-  public _parseLaunchId(result: any): number {
+  private _parseLaunchId(result: any): number {
     return parseInt(_.get(result, "stdout", ":").trim().split(":")[1]);
   }
 }

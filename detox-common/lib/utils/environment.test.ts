@@ -7,12 +7,12 @@ describe("Environment", () => {
 
   beforeEach(() => {
     originalProcessEnv = _.cloneDeep(process.env);
-    Environment = require("./environment");
+    Environment = require("./environment").default;
   });
 
   beforeEach(() => {
     process.env = _.cloneDeep(originalProcessEnv);
-    Environment = require("./environment");
+    Environment = require("./environment").default;
   });
 
   it(`ANDROID_SDK_ROOT and ANDROID_HOME are defined, prefer ANDROID_SDK_ROOT`, () => {
