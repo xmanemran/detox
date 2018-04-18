@@ -1,37 +1,49 @@
-const fs = require('fs');
 const program = require('commander');
-const mochaTemplates = require('./templates/mocha.js');
+const runners = require('../src/test-runners/index.js');
+
+const supportedTestRunners = Object.keys(runners.implementations).join(', ');
+
+const messages = {
+    runnerParamDescription: `Test runner (currently supports: ${supportedTestRunners})`,
+    errorNotSupportedTestRunner: (givenTestRunnerName) =>
+        `ERROR! Test runner ${JSON.stringify(givenTestRunnerName)} is not supported.`,
+    hintSupportedTestRunners: `Supported runners are: ${supportedTestRunners}`,
+};
 
 program
-  .option('-r, --runner [runner]', 'Test runner (currently supports mocha)', 'mocha')
-  .parse(process.argv);
+    .option('-r, --runner [runner]', messages.runnerParamDescription, runners.default)
+    .parse(process.argv);
 
-function createFile(dir, content) {
-  try {
-    fs.writeFileSync(dir, content);
-    console.log(`A file was created in "${dir}" `);
-  } catch (err) {
-    return err;
-  }
+const runnerName = program.runner;
+const runner = runners.implementations[runnerName] || null;
+
+if (runner === null) {
+    program.help(helpMessage => (
+        messages.errorNotSupportedTestRunner(runnerName) + '\n' +
+        messages.hintSupportedTestRunners + '\n' +
+        helpMessage
+    ));
 }
 
-const dir = './e2e';
-
-function createFolder(firstTestContent, runnerConfig, initjsContent) {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-    createFile("./e2e/mocha.opts", runnerConfig);
-    createFile("./e2e/init.js", initjsContent);
-    createFile("./e2e/firstTest.spec.js", firstTestContent)
-  } else {
-    return console.log('e2e folder already exists')
-  }
+async function main() {
+    await runner.init();
 }
 
-switch (program.runner) {
-  case 'mocha':
-    createFolder(mochaTemplates.firstTest, mochaTemplates.runnerConfig, mochaTemplates.initjs);
-    break;
-  default:
-    createFolder(mochaTemplates.firstTest, mochaTemplates.runnerConfig, mochaTemplates.initjs);
-}
+main().then(code => process.exit(code)).catch(e => {
+    console.error('Failed to scaffold environment for', runnerName, 'test runner.')
+    console.error('See error below:\n');
+
+    if ('innerError' in e) {
+        console.error('Error:', e.message);
+        console.error(e.innerError.message);
+        console.error('\n', e.innerError);
+    } else {
+        console.error(e);
+    }
+
+    if ('exitCode' in e) {
+        process.exit(e.exitCode);
+    } else {
+        process.exit(-1);
+    }
+});
