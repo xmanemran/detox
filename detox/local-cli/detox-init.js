@@ -4,10 +4,12 @@ const runners = require('../src/test-runners/index.js');
 const supportedTestRunners = Object.keys(runners.implementations).join(', ');
 
 const messages = {
-    runnerParamDescription: `Test runner (currently supports: ${supportedTestRunners})`,
+    runnerParamDescription:
+        `Test runner (currently supports: ${supportedTestRunners})`,
     errorNotSupportedTestRunner: (givenTestRunnerName) =>
         `ERROR! Test runner ${JSON.stringify(givenTestRunnerName)} is not supported.`,
-    hintSupportedTestRunners: `Supported runners are: ${supportedTestRunners}`,
+    hintSupportedTestRunners:
+        `Supported runners are: ${supportedTestRunners}`,
 };
 
 program
@@ -26,24 +28,34 @@ if (runner === null) {
 }
 
 async function main() {
-    await runner.init();
+    return runner.init();
 }
 
-main().then(code => process.exit(code)).catch(e => {
-    console.error('Failed to scaffold environment for', runnerName, 'test runner.')
+function printError(e) {
     console.error('See error below:\n');
 
-    if ('innerError' in e) {
+    if ('message' in e) {
         console.error('Error:', e.message);
+    }
+
+    if ('innerError' in e) {
         console.error(e.innerError.message);
         console.error('\n', e.innerError);
     } else {
         console.error(e);
     }
+}
 
-    if ('exitCode' in e) {
-        process.exit(e.exitCode);
-    } else {
-        process.exit(-1);
+main().catch(e => {
+    console.error('Failed to scaffold environment for', runnerName, 'test runner.')
+
+    if (e) {
+        printError(e);
+
+        if ('exitCode' in e) { // TODO: there is Node built-in error code field into Error
+            return e.exitCode;
+        }
     }
-});
+
+    return -1;
+}).then(code => process.exit(code));

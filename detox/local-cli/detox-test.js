@@ -122,6 +122,7 @@ function runJest() {
 
 function getDefaultRunnerConfig() {
   let defaultConfig;
+
   switch (runner) {
     case 'mocha':
       defaultConfig = 'e2e/mocha.opts';
