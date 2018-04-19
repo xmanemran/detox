@@ -1,32 +1,35 @@
 #!/usr/bin/env node
 
-const program = require('commander');
-const path = require('path');
-const cp = require('child_process');
 const _ = require('lodash');
-const CustomError = require('../src/errors/CustomError');
-const config = require(path.join(process.cwd(), 'package.json')).detox;
+const program = require('commander');
+const DetoxConfigError = require('../src/errors/DetoxConfigError');
+const detoxSectionInPackageJson = require(path.join(process.cwd(), 'package.json').detox;
 
-class DetoxConfigError extends CustomError {}
+const runners = require('../src/test-runners/index.js');
 
-
+const lookup = (dictionary, transformKey = _.identity) => (key) => dictionary[transformKey(key)];
+const lookupInCommandLineArguments = lookup(program);
+const lookupAsIsInConfig = lookup(config);
+const lookupKebabInConfig = lookup(config, _.kebabCase);
+const lookupEverywhere = (key) => lookupInCommandLineArguments(key) || lookupAsIsInConfig(key) || lookupKebabInConfig(key);
 
 program
+  .option('-c, --configuration [device configuration]',
+    'Select a device configuration from your defined configurations, if not supplied, and there\'s only one configuration, detox will default to it')
   .option('-o, --runner-config [config]',
     `Test runner config file, defaults to e2e/mocha.opts for mocha and e2e/config.json' for jest`)
   .option('-s, --specs [relativePath]',
     `Root of test folder`)
   .option('-l, --loglevel [value]',
     'info, debug, verbose, silly, wss')
-  .option('-c, --configuration [device configuration]',
-    'Select a device configuration from your defined configurations, if not supplied, and there\'s only one configuration, detox will default to it', getDefaultConfiguration())
   .option('-r, --reuse',
     'Reuse existing installed app (do not delete and re-install) for a faster run.')
   .option('-u, --cleanup',
     'Shutdown simulator when test is over, useful for CI scripts, to make sure detox exists cleanly with no residue')
   .option('-d, --debug-synchronization [value]',
-    'When an action/expectation takes a significant amount of time use this option to print device synchronization status.'
-    + 'The status will be printed if the action takes more than [value]ms to complete')
+    'When an action/expectation takes a significant amount of time use this option to print device synchronization status.' +
+    'The status will be printed if the action takes more than [value]ms to complete',
+    (value) => value === true ? 3000 : value)
   .option('-a, --artifacts-location [path]',
     'Artifacts destination path (currently will contain only logs). If the destination already exists, it will be removed first')
   .option('-p, --platform [ios/android]',
@@ -36,122 +39,110 @@ program
     'Specify test file to run')
   .parse(process.argv);
 
-if (program.configuration) {
-  if (!config.configurations[program.configuration]) {
-    throw new DetoxConfigError(`Cannot determine configuration '${program.configuration}'. 
-    Available configurations: ${_.keys(config.configurations).join(', ')}`);
-  }
-} else if(!program.configuration) {
-  throw new DetoxConfigError(`Cannot determine which configuration to use. 
-  Use --configuration to choose one of the following: ${_.keys(config.configurations).join(', ')}`);
+
+
+function getConfigurationName() {
+    const configurationName = program.configuration || getFirstAndOnlyConfiguration(detoxSectionInPackageJson);
+
+    if (!configurationName) {
+        const errorDescription = 'Cannot determine which configuration to use.';
+
+        const availableConfigurations = _.keys(detoxSectionInPackageJson.configurations);
+        const hint = (availableConfigurations.length === 0)
+            ? `Use --configuration to choose one of the following: ${availableConfigurations.join(', ')}`
+            : 'There are no available detox configurations in your package.json';
+
+        throw new DetoxConfigError(errorDescription + '\n' + hint);
+    }
+
+    return configurationName;
 }
 
-const testFolder = getConfigFor(['file', 'specs'], 'e2e');
-const runner = getConfigFor(['testRunner'], 'mocha');
-const runnerConfig = getConfigFor(['runnerConfig'], getDefaultRunnerConfig());
-const platform = (config.configurations[program.configuration].type).split('.')[0];
-
-run();
-
-
-if (typeof program.debugSynchronization === "boolean") {
-  program.debugSynchronization = 3000;
+function getFirstAndOnlyConfiguration(detoxConfig) {
+    if (_.size(detoxConfig.configurations) === 1) {
+        return _.keys(detoxConfig.configurations)[0];
+    }
 }
 
-function run() {
-  switch (runner) {
-    case 'mocha':
-      runMocha();
-      break;
-    case 'jest':
-      runJest();
-      break;
-    default:
-      throw new Error(`${runner} is not supported in detox cli tools. You can still run your tests with the runner's own cli tool`);
-  }
+function getCurrentDetoxConfiguration() {
+    const configurationName = getConfigurationName();
+    const currentDetoxConfiguration = detoxSectionInPackageJson.configurations[configurationName];
+
+    if (!currentDetoxConfiguration) {
+        const errorDescription =`Cannot find configuration '${program.configuration}' in detox section in package.json`;
+
+        const availableConfigurations = _.keys(detoxSectionInPackageJson.configurations);
+        const hint = (availableConfigurations.length === 0)
+            ? `Available configurations: ${availableConfigurations.join(', ')}`
+            : 'There are no available detox configurations in your package.json';
+
+        throw new DetoxConfigError(errorDescription + '\n' + hint);
+    }
+
+    return currentDetoxConfiguration;
 }
 
-function getConfigFor(keys, fallback) {
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i];
-    const keyKebabCase = camelToKebabCase(key);
-    const result = program[key] || config[key] || config[keyKebabCase];
-    if (result) return result;
-  }
+const currentDetoxConfiguration = getCurrentDetoxConfiguration();
+const [platform] = currentDetoxConfiguration.type.split('.');
+const runner = lookupEverywhere('testRunner');
 
-  return fallback;
+async function addGuess([testRunnerName, implementation]) {
+    return (await implementation.detect()) ? testRunnerName : undefined;
 }
 
-function camelToKebabCase(string) {
-  return string.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+async function guess() {
+    const guesses = _.compact(await Promise.all(Object.entries(runners.implementations).map(addGuess)));
+    if (guesses.length !== 1) {
+        const errorDescription = 'Cannot guess what test runner you are using.';
+        const hint = 'Try to add it to your Detox configuration in package.json, like this:\n' + JSON.stringify({
+
+        });
+        throw new DetoxConfigError('')
+//   const hint = `Missing 'runner-config' value in detox config in package.json, using '${defaultConfig}' as default for ${runner}`;
+//       throw new Error(`${runner} is not supported in detox cli tools. You can still run your tests with the runner's own cli tool`);
+    }
+    Promise.all(.map(async ([name, impl]) => {
+        return (await impl.detect()) ? name : undefined;
+    }));
+}
+if (!runner) {
 }
 
-function runMocha() {
-  const loglevel = program.loglevel ? `--loglevel ${program.loglevel}` : '';
-  const configuration = program.configuration ? `--configuration ${program.configuration}` : '';
-  const cleanup = program.cleanup ? `--cleanup` : '';
-  const reuse = program.reuse ? `--reuse` : '';
-  const artifactsLocation = program.artifactsLocation ? `--artifacts-location ${program.artifactsLocation}` : '';
-  const configFile = runnerConfig ? `--opts ${runnerConfig}` : '';
-  const platformString = platform ? `--grep ${getPlatformSpecificString(platform)} --invert` : '';
-
-  const debugSynchronization = program.debugSynchronization ? `--debug-synchronization ${program.debugSynchronization}` : '';
-  const command = `node_modules/.bin/mocha ${testFolder} ${configFile} ${configuration} ${loglevel} ${cleanup} ${reuse} ${debugSynchronization} ${platformString} ${artifactsLocation}`;
-
-  console.log(command);
-  cp.execSync(command, {stdio: 'inherit'});
-}
-
-function runJest() {
-  const configFile = runnerConfig ? `--config=${runnerConfig}` : '';
-  const platformString = platform ? `--testNamePattern='^((?!${getPlatformSpecificString(platform)}).)*$'` : '';
-  const command = `node_modules/.bin/jest ${testFolder} ${configFile} --runInBand ${platformString}`;
-  console.log(command);
-  cp.execSync(command, {
-    stdio: 'inherit',
-    env: Object.assign({}, process.env, {
-      configuration: program.configuration,
-      loglevel: program.loglevel,
-      cleanup: program.cleanup,
-      reuse: program.reuse,
-      debugSynchronization: program.debugSynchronization,
-      artifactsLocation: program.artifactsLocation
-    })
-  });
-}
-
-function getDefaultRunnerConfig() {
-  let defaultConfig;
-
-  switch (runner) {
-    case 'mocha':
-      defaultConfig = 'e2e/mocha.opts';
-      break;
-    case 'jest':
-      defaultConfig = 'e2e/config.json';
-      break;
-    default:
-      console.log(`Missing 'runner-config' value in detox config in package.json, using '${defaultConfig}' as default for ${runner}`);
-  }
-
-  return defaultConfig;
-}
-
-function getPlatformSpecificString(platform) {
-  let platformRevertString;
-  if (platform === 'ios') {
-    platformRevertString = ':android:';
-  } else if (platform === 'android') {
-    platformRevertString = ':ios:';
-  }
-
-  return platformRevertString;
-}
-
-function getDefaultConfiguration() {
-  if (_.size(config.configurations) === 1) {
-    return _.keys(config.configurations)[0];
-  }
-}
+//
+// run({
+//     testFolder: getConfigFor(['file', 'specs']) || 'e2e',
+//
+//     runnerConfig: getConfigFor(['runnerConfig']) || getDefaultRunnerConfig(),
+//     platform,
+// });
+//
+// function run() {
+//   switch (runner) {
+//     case 'mocha':
+//       runMocha();
+//       break;
+//     case 'jest':
+//       runJest();
+//       break;
+//     default:
+//   }
+// }
+//
+//
+//
+// function getConfigFor(keys, fallback) {
+//   for (const key of keys) {
+//       const result = lookupEverywhere(key);
+//
+//       if (result) {
+//           return result;
+//       }
+//   }
+//
+//   return fallback;
+// ;
+//
+// function getDefaultRunnerConfig() {
+// }
 
 
