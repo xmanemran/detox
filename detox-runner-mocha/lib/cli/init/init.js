@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const fs = require('fs-extra');
 const path = require('path');
-const UnhandledError = require('../../errors/UnhandledError');
+const UnhandledError = require('../../../../detox/src/errors/UnhandledError');
 
 function doesDirectoryExist(directoryName) {
     const exists = _.attempt(() => fs.existsSync(directoryName));
