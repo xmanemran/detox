@@ -1,18 +1,23 @@
 #!/usr/bin/env node
 
 const _ = require('lodash');
+const path = require('path');
 const program = require('commander');
 const DetoxConfigError = require('../src/errors/DetoxConfigError');
-const detoxSectionInPackageJson = require(path.join(process.cwd(), 'package.json').detox;
+const detoxSectionInPackageJson = require(path.join(process.cwd(), 'package.json')).detox;
 
 const runners = require('../src/test-runners/index.js');
 
 const lookup = (dictionary, transformKey = _.identity) => (key) => dictionary[transformKey(key)];
 const lookupInCommandLineArguments = lookup(program);
-const lookupAsIsInConfig = lookup(config);
-const lookupKebabInConfig = lookup(config, _.kebabCase);
+const lookupAsIsInConfig = lookup(detoxSectionInPackageJson);
+const lookupKebabInConfig = lookup(detoxSectionInPackageJson, _.kebabCase);
 const lookupEverywhere = (key) => lookupInCommandLineArguments(key) || lookupAsIsInConfig(key) || lookupKebabInConfig(key);
 
+const cliParams = require('../src/cli/params');
+const registerCliParam = require('../src/cli/registerParam');
+
+/*
 program
   .option('-c, --configuration [device configuration]',
     'Select a device configuration from your defined configurations, if not supplied, and there\'s only one configuration, detox will default to it')
@@ -38,8 +43,10 @@ program
   .option('-f, --file [path]',
     'Specify test file to run')
   .parse(process.argv);
+*/
 
-
+Object.values(cliParams).forEach(param => registerCliParam(program, param));
+program.parse(process.argv);
 
 function getConfigurationName() {
     const configurationName = program.configuration || getFirstAndOnlyConfiguration(detoxSectionInPackageJson);
@@ -90,23 +97,23 @@ async function addGuess([testRunnerName, implementation]) {
     return (await implementation.detect()) ? testRunnerName : undefined;
 }
 
-async function guess() {
-    const guesses = _.compact(await Promise.all(Object.entries(runners.implementations).map(addGuess)));
-    if (guesses.length !== 1) {
-        const errorDescription = 'Cannot guess what test runner you are using.';
-        const hint = 'Try to add it to your Detox configuration in package.json, like this:\n' + JSON.stringify({
-
-        });
-        throw new DetoxConfigError('')
+// async function guess() {
+//    const guesses = _.compact(await Promise.all(Object.entries(runners.implementations).map(addGuess)));
+//    if (guesses.length !== 1) {
+//        const errorDescription = 'Cannot guess what test runner you are using.';
+//        const hint = 'Try to add it to your Detox configuration in package.json, like this:\n' + JSON.stringify({
+//
+//        });
+//        throw new DetoxConfigError('')
 //   const hint = `Missing 'runner-config' value in detox config in package.json, using '${defaultConfig}' as default for ${runner}`;
 //       throw new Error(`${runner} is not supported in detox cli tools. You can still run your tests with the runner's own cli tool`);
-    }
-    Promise.all(.map(async ([name, impl]) => {
-        return (await impl.detect()) ? name : undefined;
-    }));
-}
-if (!runner) {
-}
+//    }
+//    Promise.all(.map(async ([name, impl]) => {
+//        return (await impl.detect()) ? name : undefined;
+//    }));
+//}
+//if (!runner) {
+//}
 
 //
 // run({

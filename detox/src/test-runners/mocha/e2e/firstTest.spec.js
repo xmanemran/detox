@@ -1,4 +1,4 @@
-describe('Example', () => {
+xdescribe('Example', () => {
     beforeEach(async () => {
         await device.reloadReactNative();
     });

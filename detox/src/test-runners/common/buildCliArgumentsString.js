@@ -24,14 +24,14 @@ function buildCliArgumentsString(keyValues) {
 
         str += '--' + _.kebabCase(key);
 
-        if (isFlag(value)) {
-            continue;
+        if (!isFlag(value)) {
+          str += ' ' + value;
         }
 
-        str += ' ' + value;
+        str += ' ';
     }
 
-    return str;
+    return str.trim();
 }
 
 module.exports = buildCliArgumentsString;
