@@ -2,8 +2,8 @@ const cp = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const buildCliArgumentsString = require('../common/buildCliArgumentsString');
-const getPlatformSpecificString = require('../common/getPlatformSpecificString');
+const buildCliArgumentsString = require('../../../../detox/src/test-runners/common/buildCliArgumentsString');
+const getPlatformSpecificString = require('../../../../detox/src/test-runners/common/getPlatformSpecificString');
 
 function getDefaultRunnerConfig() {
     return 'e2e/mocha.opts';

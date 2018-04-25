@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/wix/detox#readme",
   "devDependencies": {
+    "jest": "^22.4.3",
     "typescript": "^2.8.3"
   }
 }

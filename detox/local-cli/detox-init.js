@@ -1,30 +1,22 @@
 const program = require('commander');
 const runners = require('../src/test-runners/index.js');
+const messages = require('../src/messages/cli/detox-init');
 
 const supportedTestRunners = Object.keys(runners.implementations).join(', ');
 
-const messages = {
-    runnerParamDescription:
-        `Test runner (currently supports: ${supportedTestRunners})`,
-    errorNotSupportedTestRunner: (givenTestRunnerName) =>
-        `ERROR! Test runner ${JSON.stringify(givenTestRunnerName)} is not supported.`,
-    hintSupportedTestRunners:
-        `Supported runners are: ${supportedTestRunners}`,
-};
-
 program
-    .option('-r, --runner [runner]', messages.runnerParamDescription, runners.default)
+    .option('-r, --runner [runner]', messages.runnerParamDescription(supportedTestRunners), runners.default)
     .parse(process.argv);
 
 const runnerName = program.runner;
 const runner = runners.implementations[runnerName] || null;
 
 if (runner === null) {
-    program.help(helpMessage => (
-        messages.errorNotSupportedTestRunner(runnerName) + '\n' +
-        messages.hintSupportedTestRunners + '\n' +
-        helpMessage
-    ));
+    program.help(helpMessage => [
+        messages.errorNotSupportedTestRunner(runnerName),
+        messages.hintSupportedTestRunners(supportedTestRunners),
+        helpMessage,
+    ].join('\n'));
 }
 
 async function main() {
