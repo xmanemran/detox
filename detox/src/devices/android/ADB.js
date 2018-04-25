@@ -138,6 +138,22 @@ class ADB {
     const serial = deviceId ? ['-s', deviceId] : [];
     return spawnAndLog(this.adbBin, [...serial, ...params]);
   }
+
+  async listInstrumentation(deviceId) {
+    return await this.shell(deviceId, 'pm list instrumentation');
+  }
+
+  instrumentationRunnerForBundleId(instrumentationRunners, bundleId) {
+    const runnerForBundleRegEx = new RegExp(`^instrumentation:(.*) \\(target=${bundleId.replace(new RegExp('\\.', 'g'), "\\.")}\\)$`, 'gm');
+    return _.get(runnerForBundleRegEx.exec(instrumentationRunners), [1], 'undefined');
+  }
+
+  async getInstrumentationRunner(deviceId, bundleId) {
+    const instrumentationRunners = await this.listInstrumentation(deviceId);
+    const instrumentationRunner = this.instrumentationRunnerForBundleId(instrumentationRunners, bundleId);
+    if (instrumentationRunner === 'undefined') throw new Error(`No instrumentation runner found on device ${deviceId} for package ${bundleId}`);
+    return instrumentationRunner;
+  }
 }
 
 module.exports = ADB;
