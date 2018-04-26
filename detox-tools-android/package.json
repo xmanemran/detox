@@ -1,0 +1,67 @@
+{
+  "name": "detox-tools-android",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "compile": "tsc",
+    "lint": "tslint --fix lib/**/*.ts",
+    "test": "jest",
+    "debug": "node --inspect-brk ./node_modules/jest/bin/jest.js -i"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/fs-extra": "^5.0.2",
+    "@types/jest": "^22.2.3",
+    "@types/lodash": "^4.14.107",
+    "@types/node": "^9.6.5",
+    "@types/tempfile": "^2.0.0",
+    "jest": "^22.4.3",
+    "npmlog": "^4.1.2",
+    "tail": "^1.2.3",
+    "ts-jest": "^22.4.3",
+    "tslint": "^5.9.1",
+    "typescript": "^2.8.1"
+  },
+  "dependencies": {
+    "child-process-promise": "^2.2.1",
+    "fs-extra": "^5.0.0",
+    "lodash": "^4.17.5",
+    "telnet-client": "^0.15.5",
+    "tempfile": "^2.0.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "lib.*\\.test\\.(ts|tsx)$",
+    "coveragePathIgnorePatterns": [
+      ".*Driver.js",
+      "EmulatorTelnet.js",
+      "Emulator.js",
+      "DeviceDriverBase.js",
+      "ArtifactBase.js",
+      "GREYConfiguration.js",
+      "environment.js",
+      "AAPT.js",
+      "ADB.js",
+      "fsext.js",
+      "debug.js"
+    ],
+    "resetMocks": true,
+    "resetModules": true,
+    "coverageThreshold": {
+      "global": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      }
+    }
+  }
+}

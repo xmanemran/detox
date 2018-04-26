@@ -1,0 +1,48 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AAPT constructor should throw when aapt binary path does not exist 1`] = `
+"*aapt* binary was not found
+HINT: Make sure it exists at path: /tmp/unexisting_aapt_path"
+`;
+
+exports[`AAPT constructor should throw when aapt binary path is not specified 1`] = `
+"AAPT.constructor(options) did not get binary path of *aapt*
+HINT: Options passed to constructor were: {\\"aaptBin\\":\\"\\"}"
+`;
+
+exports[`AAPT constructor should throw when no args given 1`] = `
+"AAPT.constructor() did not receive any options
+HINT: Make sure you are passing non-empty options to new AAPT(options)"
+`;
+
+exports[`AAPT methods readPackageNameFromAPK when aapt executable exits with an error code should throw an error with a verbose debug information 1`] = `
+[Error: Command failed with an error code (255)
+To reproduce the error, run the following command:
+lib/__tests__/executables/aapt/aapt-failure dump badging "path/to/file.apk"
+You might find these dumps from stdout and stderr helpful. See below:
+=====================================================================
+starting...
+
+aapt failed with an unknown error
+]
+`;
+
+exports[`AAPT methods readPackageNameFromAPK when aapt executable works as expected should return package name it parses in stdout 1`] = `"com.wix.detox.test"`;
+
+exports[`AAPT methods readPackageNameFromAPK when aapt executable works as expected should throw if empty package name is given 1`] = `
+[Error: No path to APK file is specified
+HINT: Make sure that AAPT.readPackageNameFromAPK(apkPath) gets valid path.]
+`;
+
+exports[`AAPT methods readPackageNameFromAPK when aapt executable works but prints non-intelligible output should throw exception with logs and debug information 1`] = `
+[Error: could not find the package name in aapt stdout
+To reproduce the error, run the following command:
+lib/__tests__/executables/aapt/aapt-dumb-badging-weird dump badging "path/to/file.apk"
+You might find these dumps from stdout and stderr helpful. See below:
+=====================================================================
+package: name="com.wix.detox.test" versionCode="1"
+NOTE: regexp should fail on the line above, because package name is in double quotes
+
+WARN: this warning should get into exception message in test
+]
+`;

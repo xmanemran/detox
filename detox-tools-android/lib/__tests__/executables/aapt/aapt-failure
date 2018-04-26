@@ -1,0 +1,11 @@
+#!/bin/sh
+
+cat << EOF
+starting...
+EOF
+
+cat << EOF >&2
+aapt failed with an unknown error
+EOF
+
+exit 255

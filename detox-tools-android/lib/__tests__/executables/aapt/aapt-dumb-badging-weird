@@ -1,0 +1,10 @@
+#!/bin/sh
+
+cat<<EOF
+package: name="com.wix.detox.test" versionCode="1"
+NOTE: regexp should fail on the line above, because package name is in double quotes
+EOF
+
+cat << EOF >&2
+WARN: this warning should get into exception message in test
+EOF
