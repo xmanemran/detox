@@ -25,11 +25,6 @@ program
   .option('-d, --debug-synchronization [value]',
     'When an action/expectation takes a significant amount of time use this option to print device synchronization status.'
     + 'The status will be printed if the action takes more than [value]ms to complete')
-  .option('-p, --platform [ios/android]',
-    '[DEPRECATED], platform is deduced automatically. Run platform specific tests. Runs tests with invert grep on \':platform:\', '
-    + 'e.g test with substring \':ios:\' in its name will not run when passing \'--platform android\'')
-  .option('-f, --file [path]',
-    'Specify test file to run')
   .option('-a, --artifacts-location [path]',
     'Artifacts destination path. If the destination already exists, it will be removed first')
   .option(
@@ -38,6 +33,13 @@ program
   .option(
     '--record-videos [value]',
     'Save screen recordings of each test to artifacts directory. Pass "failing" to save recordings of failing tests only.')
+  .option('-p, --platform [ios/android]',
+    '[DEPRECATED], platform is deduced automatically. Run platform specific tests. Runs tests with invert grep on \':platform:\', '
+    + 'e.g test with substring \':ios:\' in its name will not run when passing \'--platform android\'')
+  .option('-f, --file [path]',
+    'Specify test file to run')
+  .option('-H, --headless',
+    '[Android Only] Launch Emulator in headless mode. Useful when running on CI.')
   .parse(process.argv);
 
 if (program.configuration) {
@@ -100,9 +102,10 @@ function runMocha() {
   const platformString = platform ? `--grep ${getPlatformSpecificString(platform)} --invert` : '';
   const screenshots = program.takeScreenshots ? `--take-screenshots ${program.takeScreenshots}` : '';
   const videos = program.recordVideos ? `--record-videos ${program.recordVideos}` : '';
+  const headless = program.headless ? `--headless` : '';
 
   const debugSynchronization = program.debugSynchronization ? `--debug-synchronization ${program.debugSynchronization}` : '';
-  const command = `node_modules/.bin/mocha ${testFolder} ${configFile} ${configuration} ${loglevel} ${cleanup} ${reuse} ${debugSynchronization} ${platformString} ${artifactsLocation} ${screenshots} ${videos}`;
+  const command = `node_modules/.bin/mocha ${testFolder} ${configFile} ${configuration} ${loglevel} ${cleanup} ${reuse} ${debugSynchronization} ${platformString} ${artifactsLocation} ${screenshots} ${videos} ${headless}`;
 
   console.log(command);
   cp.execSync(command, {stdio: 'inherit'});
@@ -124,6 +127,7 @@ function runJest() {
       artifactsLocation: program.artifactsLocation,
       takeScreenshots: program.takeScreenshots,
       recordVideos: program.recordVideos,
+      headless: program.headless
     })
   });
 }
