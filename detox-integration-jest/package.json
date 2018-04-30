@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "compile": "./scripts/compile.sh",
-    "test": "jest"
+    "test": "jest --setupTestFrameworkScriptFile ./test/integration.init.js ./test/integration.test.js"
   },
   "repository": {
     "type": "git",
@@ -20,11 +20,8 @@
     "url": "https://github.com/noomorph/detox-plugin-artifacts/issues"
   },
   "homepage": "https://github.com/noomorph/detox-plugin-artifacts#readme",
+  "dependencies": {},
   "devDependencies": {
-    "typescript": "^2.8.1"
-  },
-  "dependencies": {
-    "npmlog": "^4.1.2",
-    "tslib": "^1.9.0"
+    "jest": "^22.4.3"
   }
 }
