@@ -24,6 +24,10 @@ class DetoxJestAdapter /* implements JasmineReporter */ {
   }
 
   specStarted(result) {
+    if (result.pendingReason) {
+      return;
+    }
+
     const spec = Object.freeze({
       title: result.description,
       fullName: result.fullName,
@@ -34,6 +38,10 @@ class DetoxJestAdapter /* implements JasmineReporter */ {
   }
 
   specDone(result) {
+    if (result.pendingReason) {
+      return;
+    }
+
     const spec = Object.freeze({
       title: result.description,
       fullName: result.fullName,

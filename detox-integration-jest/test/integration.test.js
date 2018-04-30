@@ -25,28 +25,48 @@ afterAll(async () => {
   testPlugin.assertCounter(15);
 });
 
-it('ok 1', async () => {
-  testPlugin.assertCounter(8);
-  await sleep();
-  testPlugin.assertCounter(9);
-});
+describe('fake detox + jest + test plugin integration', () => {
+  it('ok sync', () => {
+    testPlugin.assertCounter(8);
+    testPlugin.assertCounter(9);
+  });
 
-it('ok 2', async () => {
-  testPlugin.assertCounter(8);
-  await sleep();
-  testPlugin.assertCounter(9);
-});
+  xit('pending static', async () => {
+    testPlugin.assertCounter(8);
+    await sleep();
+    testPlugin.assertCounter(9);
+  });
 
-it('fail 1', async () => {
-  testPlugin.assertCounter(8);
-  await sleep();
-  testPlugin.assertCounter(9);
-  jest.fail(); // TODO:
-});
+  it('fail sync', () => {
+    testPlugin.assertCounter(8);
+    testPlugin.assertCounter(9);
+    fail('some reason');
+  });
 
-it('fail 2', async () => {
-  testPlugin.assertCounter(8);
-  await sleep();
-  testPlugin.assertCounter(9);
-  jest.fail(); // TODO:
+  it('ok async', async () => {
+    testPlugin.assertCounter(8);
+    await sleep();
+    testPlugin.assertCounter(9);
+  });
+
+  it('fail due to dynamic pending', async () => {
+    testPlugin.assertCounter(8);
+    testPlugin.assertCounter(9);
+    pending('some reason');
+  });
+
+  it('fail async', async () => {
+    testPlugin.assertCounter(8);
+    await sleep();
+    testPlugin.assertCounter(9);
+
+    fail('other reason');
+  });
+
+  it('fail by timeout', async () => {
+    testPlugin.assertCounter(8);
+    await sleep();
+    testPlugin.assertCounter(9);
+    await sleep();
+  }, sleep.defaultMs * 1.5);
 });
