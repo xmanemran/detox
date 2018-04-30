@@ -1,18 +1,19 @@
 const detox = require('detox');
-const {detoxJestAdapter} = require('detox-runner-jest');
+const config = require('../package.json').detox;
+const adapter = require('detox-runner-jest/adapter');
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
-jasmine.getEnv().addReporter(detoxJestAdapter);
+jasmine.getEnv().addReporter(adapter);
 
 beforeAll(async () => {
-  await detox.init({ some: 'config' });
+  await detox.init(config);
 });
 
 beforeEach(async () => {
-  await detoxJestAdapter.beforeEach();
+  await adapter.beforeEach();
 });
 
 afterAll(async () => {
-  await detoxJestAdapter.afterAll();
+  await adapter.afterAll();
   await detox.cleanup();
 });

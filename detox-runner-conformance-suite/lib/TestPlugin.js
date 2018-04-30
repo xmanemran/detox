@@ -1,4 +1,5 @@
 const sleep = require('./sleep');
+const assert = require('./assert');
 
 class TestPlugin {
   constructor() {
@@ -7,9 +8,9 @@ class TestPlugin {
   }
 
   async onStart() {
-    this.assertCounter(0);
+    assert.state.ON_START_BEGIN();
     await sleep();
-    this.assertCounter(1);
+    assert.state.ON_START_END();
   }
 
   async beforeTest(spec) {
@@ -18,26 +19,25 @@ class TestPlugin {
     TestPlugin.assertFullnameIsString(spec);
     TestPlugin.assertStatus(spec, 'running');
 
-    this.assertCounter(4);
+    assert.state.BEFORE_TEST_BEGIN();
     await sleep();
-    this.assertCounter(5);
+    assert.state.BEFORE_TEST_END();
   }
 
   async afterTest(spec) {
     TestPlugin.assertStatus(spec, TestPlugin.getExpectedStatus(spec));
 
-    this.assertCounter(12);
+    assert.state.AFTER_TEST_BEGIN();
     await sleep();
-    this.assertCounter(13);
+    assert.state.AFTER_TEST_END();
 
     this.tests++;
   }
 
   async onExit() {
-    this.assertCounter(4);
+    assert.state.ON_EXIT_BEGIN();
     await sleep();
-    this.assertCounter(5);
-    console.log('INTEGRATION TEST PASSED');
+    assert.state.ON_EXIT_END();
   }
 
   static assertSpecIsReadonly(spec) {
@@ -82,17 +82,6 @@ class TestPlugin {
       throw new Error('test name should start either from "ok", "fail" or "pending"; but it was: ' + spec.title);
     }
   }
-
-  assertCounter(relativeExpected) {
-    const expected = relativeExpected + (this.tests * 10);
-
-    if (this.counter !== expected) {
-      throw new Error(`test plugin integration failed, expected counter to be ${expected} but it was ${this.counter}`);
-    } else {
-      console.log('assert counter =', expected, 'passed');
-      this.counter++;
-    }
-  }
 }
 
-module.exports = new TestPlugin();
+module.exports = TestPlugin;

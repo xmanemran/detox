@@ -1,5 +1,5 @@
 {
-  "name": "detox-integration-jest",
+  "name": "detox-runnner-conformance",
   "version": "1.0.0",
   "description": "Adds to Detox scaffolding and runtime support for Jest test runner",
   "main": "dist/index.js",
@@ -21,8 +21,7 @@
   },
   "homepage": "https://github.com/noomorph/detox-plugin-artifacts#readme",
   "dependencies": {},
-  "peerDependencies": {
-    "detox": "^7.3.4",
+  "devDependencies": {
     "jest": "^22.4.3"
   }
 }
