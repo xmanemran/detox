@@ -3,6 +3,8 @@
   "packages": [
     "detox",
     "detox-server",
+    "detox-runner-jest",
+    "detox-runner-mocha",
     "detox-cli",
     "examples/demo-native-android",
     "examples/demo-native-ios",

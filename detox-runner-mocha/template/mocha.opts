@@ -1,1 +1,1 @@
---recursive --timeout 120000 --bail
+--require ./init.js --recursive --timeout 120000 --bail

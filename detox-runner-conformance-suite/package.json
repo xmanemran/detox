@@ -1,5 +1,5 @@
 {
-  "name": "detox-runnner-conformance",
+  "name": "detox-runner-conformance-suite",
   "version": "1.0.0",
   "description": "Adds to Detox scaffolding and runtime support for Jest test runner",
   "main": "dist/index.js",

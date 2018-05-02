@@ -1,11 +1,10 @@
 {
-  "name": "detox-integration-jest",
+  "name": "detox-runner-jest",
   "version": "1.0.0",
   "description": "Adds to Detox scaffolding and runtime support for Jest test runner",
   "main": "adapter.js",
   "scripts": {
-    "compile": "./scripts/compile.sh",
-    "test": "jest --setupTestFrameworkScriptFile ./test/integration.init.js ./test/integration.test.js"
+    "test": "node_modules/detox-runner-conformance-suite/test.sh"
   },
   "repository": {
     "type": "git",
@@ -14,19 +13,17 @@
   "keywords": [
     "detox"
   ],
-  "author": "Yaroslav Serhieiev <noomorph@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/noomorph/detox-plugin-artifacts/issues"
   },
-  "homepage": "https://github.com/noomorph/detox-plugin-artifacts#readme",
+  "detox": {},
+  "devDependencies": {
+    "detox-runner-conformance-suite": "file:../detox-runner-conformance-suite"
+  },
   "dependencies": {
     "fs-extra": "^6.0.0",
     "lodash": "^4.17.10",
     "npmlog": "^4.1.2"
-  },
-  "peerDependencies": {
-    "detox": "^7.3.4",
-    "jest": "^22.4.3"
   }
 }

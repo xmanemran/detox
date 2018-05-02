@@ -1,0 +1,17 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "conformance.test.js",
+  "scripts": {
+    "test": "jest -c ./config.json",
+    "debug:test": "node --inspect-brk node_modules/jest/bin/jest.js -c ./config.json"
+  },
+  "devDependencies": {
+    "detox-runner-conformance-suite": "file:../../detox-runner-conformance-suite",
+    "detox-runner-jest": "file:..",
+    "jest": "^22.0.0"
+  },
+  "author": "",
+  "license": "MIT"
+}

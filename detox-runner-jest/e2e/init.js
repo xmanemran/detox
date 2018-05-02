@@ -1,4 +1,4 @@
-const detox = require('detox');
+const detox = require('detox-runner-conformance-suite/detox');
 const config = require('../package.json').detox;
 const adapter = require('detox-runner-jest/adapter');
 

@@ -2,11 +2,6 @@ const sleep = require('./sleep');
 const assert = require('./assert');
 
 class TestPlugin {
-  constructor() {
-    this.counter = 0;
-    this.tests = 0;
-  }
-
   async onStart() {
     assert.state.ON_START_BEGIN();
     await sleep();
@@ -30,8 +25,6 @@ class TestPlugin {
     assert.state.AFTER_TEST_BEGIN();
     await sleep();
     assert.state.AFTER_TEST_END();
-
-    this.tests++;
   }
 
   async onExit() {
