@@ -24,27 +24,33 @@ const states = {
 const assert = {
   _tests: 0,
   _assertions: 0,
+  states,
 
-  isIn(state, description) {
-    const expected = state + (this._tests * 10);
+  isIn(stateName) {
+    const stateId = this.states[stateName];
+    const expected = stateId + (this._tests * 10);
     const counter = this._assertions;
 
     if (counter !== expected) {
-      console.log('NOT in state =', description);
-      const errorMessage = `test plugin integration failed, expected counter to be ${expected} but it was: ${counter}`;
+      console.log('NOT in state =', stateName);
+      const errorMessage = `test plugin integration failed, expected counter to be ${expected} (${stateName}) but it was: ${counter}`;
       throw new Error(errorMessage);
     } else {
-      console.log('in state =', description);
-
+      console.log('in state =', stateName);
       this._assertions++;
-      if (description === 'AFTER_TEST_END') {
-        this._tests++;
-      }
     }
+
+    if (stateName === 'AFTER_TEST_END') {
+      this._tests++;
+    }
+
+    // if (stateName === 'AFTER_ALL_END') {
+    //   this._assertions -= 2;
+    // }
   },
 
-  state: mapValues(states, (value, key) => {
-    return () => assert.isIn(value, key);
+  state: mapValues(states, (_value, key) => {
+    return () => assert.isIn(key);
   }),
 };
 

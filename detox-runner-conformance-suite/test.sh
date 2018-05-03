@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 cleanup() {
   rm -rf e2e

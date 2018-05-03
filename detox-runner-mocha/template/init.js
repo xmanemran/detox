@@ -11,9 +11,11 @@ beforeEach(async function () {
 });
 
 afterEach(async function () {
+  console.log('global.afterEach');
   await adapter.afterEach(this);
 });
 
 after(async () => {
+  console.log('global.after');
   await detox.cleanup();
 });

@@ -1,30 +1,32 @@
 const { assert, sleep } = require('detox-runner-conformance-suite');
 
-before(async () => {
-  assert.state.BEFORE_ALL_BEGIN();
-  await sleep();
-  assert.state.BEFORE_ALL_END();
-});
-
-beforeEach(async () => {
-  assert.state.BEFORE_EACH_BEGIN();
-  await sleep();
-  assert.state.BEFORE_EACH_END();
-});
-
-afterEach(async () => {
-  assert.state.AFTER_EACH_BEGIN();
-  await sleep();
-  assert.state.AFTER_EACH_END();
-});
-
-after(async () => {
-  assert.state.AFTER_ALL_BEGIN();
-  await sleep();
-  assert.state.AFTER_ALL_END();
-});
-
 describe('fake detox + mocha + test plugin integration', () => {
+  before(async () => {
+    assert.state.BEFORE_ALL_BEGIN();
+    await sleep();
+    assert.state.BEFORE_ALL_END();
+  });
+
+  beforeEach(async () => {
+    assert.state.BEFORE_EACH_BEGIN();
+    await sleep();
+    assert.state.BEFORE_EACH_END();
+  });
+
+  afterEach(async () => {
+    console.log('test.afterEach');
+    assert.state.AFTER_EACH_BEGIN();
+    await sleep();
+    assert.state.AFTER_EACH_END();
+  });
+
+  after(async () => {
+    console.log('test.after');
+    assert.state.AFTER_ALL_BEGIN();
+    await sleep();
+    assert.state.AFTER_ALL_END();
+  });
+
   it('ok sync', () => {
     assert.state.TEST_BEGIN();
     assert.state.TEST_END();

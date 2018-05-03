@@ -2,7 +2,7 @@ class DetoxJestAdapter /* implements JasmineReporter */ {
   constructor(detox) {
     this.detox = detox;
     this._currentSpec = null;
-    this._todo = Promise.resolve();
+    this._todos = [];
     this.timeout = 30000;
   }
 
@@ -20,7 +20,11 @@ class DetoxJestAdapter /* implements JasmineReporter */ {
   }
 
   async _flush() {
-    await this._todo;
+    const t = this._todos;
+
+    while (t.length > 0) {
+      await Promise.resolve().then(t.shift()).catch(()=>{});
+    }
   }
 
   specStarted(result) {
@@ -38,7 +42,7 @@ class DetoxJestAdapter /* implements JasmineReporter */ {
   }
 
   specDone(result) {
-    if (result.pendingReason) {
+    if (result.status === 'disabled' || result.pendingReason) {
       return;
     }
 
@@ -52,7 +56,7 @@ class DetoxJestAdapter /* implements JasmineReporter */ {
   }
 
   _enqueue(fn) {
-    this._todo = this._todo.then(fn);
+    this._todos.push(fn);
   }
 }
 

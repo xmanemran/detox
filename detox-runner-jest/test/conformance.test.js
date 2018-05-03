@@ -19,6 +19,13 @@ afterEach(async () => {
 });
 
 afterAll(async () => {
+// NOTE: this afterAll happens before afterAll in setupFramework
+// Consequently, afterTest hook is triggered too late.
+  assert.states.AFTER_ALL_BEGIN = assert.states.AFTER_TEST_BEGIN;
+  assert.states.AFTER_ALL_END = assert.states.AFTER_TEST_END;
+  assert.states.AFTER_TEST_BEGIN += 2;
+  assert.states.AFTER_TEST_END += 2;
+
   assert.state.AFTER_ALL_BEGIN();
   await sleep();
   assert.state.AFTER_ALL_END();

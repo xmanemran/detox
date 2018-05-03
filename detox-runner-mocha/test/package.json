@@ -4,7 +4,7 @@
   "description": "",
   "main": "conformance.test.js",
   "scripts": {
-    "test": "mocha --opts mocha.opts"
+    "test": "mocha --opts mocha.opts init.js *.test.js"
   },
   "devDependencies": {
     "detox-runner-conformance-suite": "file:../../detox-runner-conformance-suite",
