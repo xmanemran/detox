@@ -8,6 +8,7 @@ class ArtifactsManager {
   }
 
   onStart() {
+      // probe artifacts location, make sure it is writable
   }
 
   onBeforeTest() {
