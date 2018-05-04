@@ -3,7 +3,7 @@ const fs = require('fs');
 const DeviceDriverBase = require('./DeviceDriverBase');
 const InvocationManager = require('../invoke').InvocationManager;
 const invoke = require('../invoke');
-const GREYConfiguration = require('./../ios/earlgreyapi/GREYConfiguration');
+const GREYConfiguration = require('../ios/earlgreyapi/GREYConfiguration');
 
 class IosDriver extends DeviceDriverBase {
 
