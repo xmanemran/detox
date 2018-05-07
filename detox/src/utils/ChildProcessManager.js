@@ -5,7 +5,7 @@ const {exec, spawn} = require('child-process-promise');
 let _operationCounter = 0;
 
 class ChildProcessManager {
-  async exec({ bin, options, statusLogs, retries = 10, interval = 1000 }) {
+  async exec({ bin, options, statusLogs, retries = 1, interval = 1000 }) {
     _operationCounter++;
 
     let cmd;

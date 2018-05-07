@@ -52,13 +52,12 @@ class Detox {
     this.client = new Client(sessionConfig);
     await this.client.connect();
 
-    const deviceClass = DEVICE_CLASSES[this.deviceConfig.type];
-
-    if (!deviceClass) {
+    const DeviceDriverClass = DEVICE_CLASSES[this.deviceConfig.type];
+    if (!DeviceDriverClass) {
       throw new Error(`'${this.deviceConfig.type}' is not supported`);
     }
 
-    const deviceDriver = new deviceClass(this.client);
+    const deviceDriver = new DeviceDriverClass(this.client);
     this.device = new Device(this.deviceConfig, sessionConfig, deviceDriver);
     await this.device.prepare(params);
 

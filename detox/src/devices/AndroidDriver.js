@@ -20,7 +20,6 @@ class AndroidDriver extends DeviceDriverBase {
 
     this.adb = new ADB();
     this.aapt = new AAPT();
-    this.apkPath = new APKPath();
   }
 
   exportGlobals() {
@@ -28,12 +27,12 @@ class AndroidDriver extends DeviceDriverBase {
   }
 
   async getBundleIdFromBinary(apkPath) {
-    return await this.aapt.getPackageName(apkPath);
+    return this.aapt.readPackageNameFromAPK(apkPath);
   }
 
-  async installApp(deviceId, binaryPath) {
-    await this.adb.install(deviceId, binaryPath);
-    await this.adb.install(deviceId, this.getTestApkPath(binaryPath));
+  async installApp(binaryPath) {
+    await this.adb.install({ apkPath : binaryPath });
+    await this.adb.install({ apkPath : this.getTestApkPath(binaryPath) });
   }
 
   getTestApkPath(originalApkPath) {
@@ -48,13 +47,13 @@ class AndroidDriver extends DeviceDriverBase {
 
   async uninstallApp(deviceId, bundleId) {
     try {
-      await this.adb.uninstall(deviceId, bundleId);
+      await this.adb.uninstall({ appId: bundleId });
     } catch (ex) {
       //this is fine
     }
 
     try {
-      await this.adb.uninstall(deviceId, `${bundleId}.test`);
+      await this.adb.uninstall({ appId: `${bundleId}.test` });
     } catch (ex) {
       //this is fine
     }
@@ -72,10 +71,13 @@ class AndroidDriver extends DeviceDriverBase {
       return this.instrumentationProcess.pid;
     }
 
-    const testRunner = await this.adb.getInstrumentationRunner(deviceId, bundleId);
+    const testRunner = await this.adb.getInstrumentationRunner({ bundleId });
 
-    this.instrumentationProcess = spawn(this.adb.adbBin, [`-s`, `${deviceId}`, `shell`, `am`, `instrument`, `-w`, `-r`, `${args.join(' ')}`, `-e`, `debug`,
-      `false`, testRunner]);
+    this.instrumentationProcess = spawn(this.adb.adbBin, [
+      `-s`, `${this.adb.deviceId}`, `shell`, `am`, `instrument`, `-w`, `-r`, `${args.join(' ')}`, `-e`, `debug`,
+      `false`, testRunner
+    ]);
+
     log.verbose(this.instrumentationProcess.spawnargs.join(" "));
     log.verbose('Instrumentation spawned, childProcess.pid: ', this.instrumentationProcess.pid);
     this.instrumentationProcess.stdout.on('data', function(data) {

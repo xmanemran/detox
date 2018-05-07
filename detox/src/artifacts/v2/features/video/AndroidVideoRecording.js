@@ -2,7 +2,6 @@ class AndroidVideoRecording {
   constructor(config) {
     this.id = config.id;
     this.onStart = null;
-    this.deviceId = config.deviceId;
     this.adb = config.adb;
     this.childProcessManager = config.childProcessManager;
     this.recordingHandle = null;
@@ -17,9 +16,7 @@ class AndroidVideoRecording {
   }
 
   async _startRecording() {
-    const resolution = await this._getDeviceScreenResolution();
-
-
+    await this._delayWhileVideoFileIsBusy()
   }
 
   async keep() {
