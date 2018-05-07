@@ -26,7 +26,7 @@ class Emulator {
   async boot(emulatorName) {
     const emulatorArgs = _.compact([
       '-verbose',
-      '-gpu', 'host',
+      '-gpu', argparse.getArgValue('headless') ? 'host' : 'auto',
       '-no-audio',
       argparse.getArgValue('headless') ? '-no-window' : '',
       `@${emulatorName}`
