@@ -35,6 +35,10 @@ class AndroidToolsLocator {
 
     return path.join(buildToolsDir, latestBuildToolsVersion, 'aapt');
   }
+
+  getEmulatorPath() {
+    return path.join(this.getSDKPath(), 'tools', 'emulator');
+  }
 }
 
 module.exports = AndroidToolsLocator;

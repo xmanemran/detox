@@ -9,18 +9,20 @@ const Tail = require('tail').Tail;
 const argparse = require('../../utils/argparse');
 
 class Emulator {
-  constructor() {
-    this.emulatorBin = path.join(Environment.getAndroidSDKPath(), 'tools', 'emulator');
+  constructor(config) {
+    this.emulatorBin = config.emulator;
+    this.cpm = config.childProcessManager;
   }
 
   async listAvds() {
     const output = await this.exec(`-list-avds --verbose`);
     const avds = output.trim().split('\n');
+
     return avds;
   }
 
   async exec(cmd) {
-    return (await exec(`${this.emulatorBin} ${cmd}`)).stdout;
+    return (await this.cpm.exec(`${this.emulatorBin} ${cmd}`)).stdout;
   }
 
   async boot(emulatorName) {
@@ -56,7 +58,13 @@ class Emulator {
     }
 
     log.verbose(this.emulatorBin, ...emulatorArgs);
-    const childProcessPromise = spawn(this.emulatorBin, emulatorArgs, { detached: true, stdio: ['ignore', stdout, stderr] });
+    const childProcessPromise = this.cpm.spawn({
+      bin: this.emulatorBin,
+      args: emulatorArgs,
+      detached: true,
+      stdio: ['ignore', stdout, stderr], // TODO: make temp file wrapper
+    });
+
     childProcessPromise.childProcess.unref();
 
     return childProcessPromise.catch((err) => {

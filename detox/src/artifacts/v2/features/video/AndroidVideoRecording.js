@@ -31,6 +31,7 @@ class AndroidVideoRecording {
     this.recordingHandle = this.childProcessManager.spawn(this.adb.binaryPath, ['screenrecord'], {
 
     });
+
   }
 
   async _getDeviceScreenResolution() {
