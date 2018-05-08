@@ -12,7 +12,7 @@ describe('Network Synchronization', () => {
   });
 
   beforeEach(async () => {
-    await device.reloadReactNative();
+    await device.relaunchApp();
     await element(by.text('Network')).tap();
   });
 

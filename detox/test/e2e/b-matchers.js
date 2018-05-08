@@ -1,6 +1,6 @@
 describe('Matchers', () => {
   beforeEach(async () => {
-    await device.reloadReactNative();
+    await device.relaunchApp();
     await element(by.text('Matchers')).tap();
   });
 
