@@ -30,6 +30,7 @@ class Detox {
     this.client = null;
     this.device = null;
     this._currentTestNumber = 0;
+    const artifactsLocation = argparse.getArgValue('artifacts-location');
     if (artifactsLocation !== undefined) {
       try {
         this._artifactsPathsProvider = new ArtifactsPathsProvider(artifactsLocation);
@@ -51,12 +52,13 @@ class Detox {
     this.client = new Client(sessionConfig);
     await this.client.connect();
 
-    const DeviceDriverClass = DEVICE_CLASSES[this.deviceConfig.type];
-    if (!DeviceDriverClass) {
+    const deviceClass = DEVICE_CLASSES[this.deviceConfig.type];
+
+    if (!deviceClass) {
       throw new Error(`'${this.deviceConfig.type}' is not supported`);
     }
 
-    const deviceDriver = new DeviceDriverClass(this.client);
+    const deviceDriver = new deviceClass(this.client);
     this.device = new Device(this.deviceConfig, sessionConfig, deviceDriver);
     await this.device.prepare(params);
 
@@ -64,20 +66,6 @@ class Detox {
       deviceDriver.exportGlobals();
       global.device = this.device;
     }
-  }
-
-  _retrieveParams() {
-    const artifactsLocation = argparse.getArgValue('artifacts-location');
-    const takeScreenshots = argparse.getArgValue('take-screenshots');
-    const recordVideos = argparse.getArgValue('record-videos');
-    const headless = argparse.getArgValue('headless');
-
-    return {
-      artifactsLocation,
-      headless,
-      recordVideos,
-      takeScreenshots,
-    };
   }
 
   async cleanup() {

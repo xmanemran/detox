@@ -6,6 +6,10 @@ describe('ADB', () => {
 
   beforeEach(() => {
     jest.mock('npmlog');
+    jest.mock('../../utils/environment', () => ({
+      getAndroidSDKPath: () => '/dev/null',
+    }));
+
     ADB = require('./ADB');
 
     jest.mock('./EmulatorTelnet');
@@ -19,7 +23,7 @@ describe('ADB', () => {
     });
     exec = require('../../utils/exec').execWithRetriesAndLogs;
 
-    adb = new ADB({ adbBin: `/dev/null` });
+    adb = new ADB();
   });
 
   it(`devices`, async () => {
