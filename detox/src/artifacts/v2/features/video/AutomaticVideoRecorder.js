@@ -16,8 +16,9 @@ class AutomaticVideoRecorder {
 
   async onBeforeTest(testInfo) {
     if (this._shouldStartVideoRecording(testInfo)) {
-      const videoPath = this.artifactNamer.constructPathForTestArtifact(testInfo);
-      this._ongoingVideoRecording = await this.recorder.recordVideo(videoPath);
+      this._ongoingVideoRecording = await this.recorder.recordVideo('recording', {
+        parentDirectory: this.artifactNamer.constructPathForTestArtifacts(testInfo),
+      });
     }
   }
 
@@ -52,7 +53,6 @@ class AutomaticVideoRecorder {
 
     return true;
   }
-
 }
 
 module.exports = AutomaticVideoRecorder;
