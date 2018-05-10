@@ -1,69 +1,42 @@
 const _ = require('lodash');
+const path = require('path');
+const NoConflictArtifactsPathsProvider = require('./ArtifactsPathsProvider');
 
-describe('ArtifactsPathsProvider', () => {
-  let ArtifactsPathsProvider;
-  let fs;
-  let mockedDateString = '2017-07-13T06:31:48.544Z';
-  let log;
+describe(NoConflictArtifactsPathsProvider, () => {
+  let provider;
 
   beforeEach(() => {
-    jest.mock('fs-extra');
-    fs = require('fs-extra');
-    jest.mock('npmlog');
-    log = require('npmlog');
-
-    ArtifactsPathsProvider = require('./ArtifactsPathsProvider');
-    require('mockdate').set(new Date(mockedDateString));
+    provider = new NoConflictArtifactsPathsProvider();
   });
 
-  it('constructor - should throw on undefined destinationRoot', () => {
-    expect(() => {
-      new ArtifactsPathsProvider();
-    }).toThrowError(/undefined/);
+  it('should provide path for test artifact', () => {
+    const test1 = { title: 'test 1', fullTitle: 'some test 1' };
+    const artifactPath1 = provider.constructPathForTestArtifact(test1, '1.log');
+    expect(artifactPath1).toBe(path.join(provider.rootDir, '0. ' + test1.fullTitle, '1.log'));
+
+    const test2 = { title: 'test 2', fullTitle: 'some test 2' };
+    const artifactPath2 = provider.constructPathForTestArtifact(test2, '1.log');
+    expect(artifactPath2).toBe(path.join(provider.rootDir, '1. ' + test2.fullTitle, '1.log'));
+
+    const artifactPath3 = provider.constructPathForTestArtifact(test1, '2.log');
+    expect(artifactPath3).toBe(path.join(provider.rootDir, '0. ' + test1.fullTitle, '2.log'));
   });
 
-  it('constructor - should throw if can\'t create run directory in the destination', () => {
-    fs.ensureDirSync = jest.fn(() => {throw 'some'});
-    expect(() => {
-      new ArtifactsPathsProvider('/tmp');
-    }).toThrowError(/Could not create artifacts root dir/);
+  it('should protect against relative ".." hacks', () => {
+    const normalTest = { fullTitle: 'test', title: 'test' };
+    const normalArtifact = 'artifact';
+    const hackyTest = { fullTitle: '/../../../test', title: 'test' };
+    const hackyArtifactName = '../../../artifact';
+
+    expect(() => provider.constructPathForTestArtifact(normalTest, hackyArtifactName)).toThrowErrorMatchingSnapshot();
+    expect(() => provider.constructPathForTestArtifact(hackyTest, normalArtifact)).toThrowErrorMatchingSnapshot();
+    expect(() => provider.constructPathForTestArtifact(hackyTest, hackyArtifactName)).toThrowErrorMatchingSnapshot();
   });
 
-  it('createPathForTest() - should throw on invalid number', () => {
-    function testForNumber(number) {
-      expect(() => {
-        (new ArtifactsPathsProvider('/tmp')).createPathForTest(number);
-      }).toThrowError(/should be a positive integer/);
-    }
-    testForNumber(undefined);
-    testForNumber('1');
-    testForNumber(-2);
-    testForNumber(0);
-    testForNumber('1.2');
-  });
+  it('should trim too long filenames', () => {
+    const actualPath = provider.constructPathForTestArtifact({ title: 'test', fullTitle: '1'.repeat(512) }, '2'.repeat(256));
+    const expectedPath = path.join(provider.rootDir, '0. ' + '1'.repeat(252), '2'.repeat(255));
 
-  it('createPathForTest() - should return proper path for no components', () => {
-    expect((new ArtifactsPathsProvider('/tmp')).createPathForTest(1)).
-      toEqual(`/tmp/detox_artifacts.${mockedDateString}/1`);
-  });
-
-  it('createPathForTest() - should return proper path for no 1 component', () => {
-    expect((new ArtifactsPathsProvider('/tmp')).createPathForTest(1, 'a')).
-      toEqual(`/tmp/detox_artifacts.${mockedDateString}/1.a`);
-  });
-
-  it('createPathForTest() - should return proper path for no 2 components', () => {
-    expect((new ArtifactsPathsProvider('/tmp')).createPathForTest(1, 'a', 'b')).
-      toEqual(`/tmp/detox_artifacts.${mockedDateString}/1.a.b`);
-  });
-
-  it('createPathsForTest() - should catch mkdirSync exception', () => {
-    const artifactsPathsProvider = new ArtifactsPathsProvider('/tmp');
-    fs.ensureDirSync = jest.fn(() => {throw 'some'});
-    artifactsPathsProvider.createPathForTest(1);
-    expect(log.warn).toHaveBeenCalledWith(
-      `some`,
-      'Could not create artifacts test dir: /tmp/detox_artifacts.2017-07-13T06:31:48.544Z/1'
-    );
+    expect(actualPath).toBe(expectedPath);
   });
 });

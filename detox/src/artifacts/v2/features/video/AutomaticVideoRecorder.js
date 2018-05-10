@@ -16,9 +16,8 @@ class AutomaticVideoRecorder {
 
   async onBeforeTest(testInfo) {
     if (this._shouldStartVideoRecording(testInfo)) {
-      this._ongoingVideoRecording = await this.recorder.recordVideo('recording', {
-        parentDirectory: this.artifactNamer.constructPathForTestArtifacts(testInfo),
-      });
+      const pathToVideoFile = this.artifactNamer.constructPathForTestArtifact(testInfo, 'recording');
+      this._ongoingVideoRecording = await this.recorder.recordVideo(pathToVideoFile);
     }
   }
 
