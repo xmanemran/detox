@@ -13,7 +13,6 @@ async function run() {
   let packageJson = require(filePath);
 
   const data = await fetch(`https://registry.npmjs.org/react-native/${reactNativeVersion}/`);
-  console.log(`data`, data);
   const reactVersion = data.peerDependencies.react;
 
   console.log(`Changed dependencies: 
