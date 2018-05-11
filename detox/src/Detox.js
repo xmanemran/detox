@@ -10,7 +10,7 @@ const Client = require('./client/Client');
 const DetoxServer = require('detox-server');
 const URL = require('url').URL;
 const _ = require('lodash');
-const ArtifactsPathsProvider = require('./artifacts/ArtifactsPathsProvider');
+const ArtifactsManager = require('./artifacts/v2/ArtifactsManager');
 
 log.level = argparse.getArgValue('loglevel') || 'info';
 log.addLevel('wss', 999, {fg: 'blue', bg: 'black'}, 'wss');
@@ -29,15 +29,7 @@ class Detox {
     this.userSession = deviceConfig.session || session;
     this.client = null;
     this.device = null;
-    this._currentTestNumber = 0;
-    const artifactsLocation = argparse.getArgValue('artifacts-location');
-    if (artifactsLocation !== undefined) {
-      try {
-        this._artifactsPathsProvider = new ArtifactsPathsProvider(artifactsLocation);
-      } catch (ex) {
-        log.warn(ex);
-      }
-    }
+    this.artifactsManager = null;
   }
 
   async init(userParams) {
@@ -66,9 +58,14 @@ class Detox {
       deviceDriver.exportGlobals();
       global.device = this.device;
     }
+
+    this.artifactsManager = new ArtifactsManager();
+    await this.artifactsManager.onStart();
   }
 
   async cleanup() {
+    await this.artifactsManager.onExit();
+
     if (this.client) {
       await this.client.cleanup();
     }
@@ -86,29 +83,22 @@ class Detox {
     }
   }
 
-  async beforeEach(...testNameComponents) {
-    this._currentTestNumber++;
-    if (this._artifactsPathsProvider !== undefined) {
-      const testArtifactsPath = this._artifactsPathsProvider.createPathForTest(this._currentTestNumber, ...testNameComponents);
-      this.device.setArtifactsDestination(testArtifactsPath);
-    }
-
-    await this._handleAppCrash(testNameComponents[1]);
+  async beforeEach(testContext) {
+    await this._handleAppCrashIfAny(testContext.fullTitle);
+    await this.artifactsManager.onBeforeTest(testContext);
   }
 
-  async afterEach(suiteName, testName) {
-    if (this._artifactsPathsProvider !== undefined) {
-      await this.device.finalizeArtifacts();
-    }
-
-    await this._handleAppCrash(testName);
+  async afterEach(testContext) {
+    await this.artifactsManager.onAfterTest(testContext);
+    await this._handleAppCrashIfAny(testContext.fullTitle);
   }
 
-  async _handleAppCrash(testName) {
+  async _handleAppCrashIfAny(testName) {
     const pendingAppCrash = this.client.getPendingCrashAndReset();
+
     if (pendingAppCrash) {
       log.error('', `App crashed in test '${testName}', here's the native stack trace: \n${pendingAppCrash}`);
-      await this.device.launchApp({newInstance: true});
+      await this.device.launchApp({ newInstance: true });
     }
   }
 

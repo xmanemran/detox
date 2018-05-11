@@ -121,9 +121,9 @@ class ADB {
     return this.adbCmd(deviceId, `shell screencap ${path}`);
   }
 
-  screenrecord(deviceId, path, width, height) {
-    const params = width && height ? ['--size', width + 'x' + height] : [];
-    return this.spawn(deviceId, ['shell', 'screenrecord', ...params, path]);
+  screenrecord(deviceId, { path }) {
+    // const params = width && height ? ['--size', width + 'x' + height] : [];
+    return this.spawn(deviceId, ['shell', 'screenrecord', path]);
   }
 
   pull(deviceId, src, dst = '') {

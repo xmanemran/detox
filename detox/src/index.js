@@ -53,15 +53,15 @@ async function init(config, params) {
   await initializeDetox(config, params);
 }
 
-async function beforeEach(specInfo) {
+async function beforeEach(testContext) {
   if (detox) {
-    await detox.beforeEach(specInfo);
+    await detox.beforeEach(testContext);
   }
 }
 
-async function afterEach(specInfo) {
+async function afterEach(testContext) {
   if (detox) {
-    await detox.afterEach(specInfo);
+    await detox.afterEach(testContext);
   }
 }
 
