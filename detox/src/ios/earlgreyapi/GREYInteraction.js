@@ -90,6 +90,33 @@ performAction:grey_tap()] // This should be separately called for the action.
     };
   }
 
+  /*Performs an @c action on the selected UI element with an error set on failure.
+
+@param action          The action to be performed on the @c element.
+@param[out] errorOrNil Error populated on failure.
+@throws NSException on action failure if @c errorOrNil is not set.
+
+@return The provided GREYInteraction instance, with an action and an error that will be
+populated on failure.
+*/static performActionError(element, action, errorOrNil) {
+    if (typeof action !== "object" || action.type !== "Invocation" || typeof action.value !== "object" || typeof action.value.target !== "object" || action.value.target.value !== "GREYActions") {
+      throw new Error('action should be a GREYAction, but got ' + JSON.stringify(action));
+    }
+
+    ;
+    return {
+      target: {
+        type: "Invocation",
+        value: element
+      },
+      method: "performAction:error:",
+      args: [action, {
+        type: "__strong NSError **",
+        value: errorOrNil
+      }]
+    };
+  }
+
   /*Performs an assertion that evaluates @c matcher on the selected UI element.
 
 @param matcher The matcher to be evaluated on the @c element.
@@ -107,6 +134,33 @@ performAction:grey_tap()] // This should be separately called for the action.
       },
       method: "assertWithMatcher:",
       args: [matcher]
+    };
+  }
+
+  /*Performs an assertion that evaluates @c matcher on the selected UI element.
+
+@param matcher         The matcher to be evaluated on the @c element.
+@param[out] errorOrNil Error populated on failure.
+@throws NSException on assertion failure if @c errorOrNil is not set.
+
+@return The provided GREYInteraction instance, with a matcher to be evaluated on an element and
+an error that will be populated on failure.
+*/static assertWithMatcherError(element, matcher, errorOrNil) {
+    if (typeof matcher !== "object" || matcher.type !== "Invocation" || typeof matcher.value !== "object" || typeof matcher.value.target !== "object" || matcher.value.target.value !== "GREYMatchers") {
+      throw new Error('matcher should be a GREYMatcher, but got ' + JSON.stringify(matcher));
+    }
+
+    ;
+    return {
+      target: {
+        type: "Invocation",
+        value: element
+      },
+      method: "assertWithMatcher:error:",
+      args: [matcher, {
+        type: "__strong NSError **",
+        value: errorOrNil
+      }]
     };
   }
 
