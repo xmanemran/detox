@@ -1,80 +1,43 @@
 const _ = require('lodash');
 const fs = require('fs-extra');
-const NoConflictPathStrategy = require('./services/pathStrategies/NoConflictPathStrategy');
-const VideoRecorderHooks = require('./hooks/VideoRecorderHooks');
 
 class ArtifactsManager {
-  constructor({ api }) {
-    this.pathStrategy = new NoConflictPathStrategy();
+  constructor({ artifactsRootDir }) {
+    this.artifactsRootDir = artifactsRootDir;
     this.hooks = [];
  }
 
-  static default({ api }) {
-    const log = {};
-    const screenshot = {};
-    const recorder = {}; // api.getPlatform();
-    const video = new VideoRecorderHooks({});
-
-    return new ArtifactsManager(config)
-      .registerHooks(log)
-      .registerHooks(screenshot)
-      .registerHooks(video);
-  }
-
   registerHooks(hooks) {
-    if (!('onStart' in hooks)) {
-      hooks.onStart = _.noop;
-    }
-
-    if (!('onBeforeTest' in hooks)) {
-      hooks.onBeforeTest = _.noop;
-    }
-
-    if (!('onAfterTest' in hooks)) {
-      hooks.onAfterTest = _.noop;
-    }
-
-    if (!('onExit' in hooks)) {
-      hooks.onExit = _.noop;
-    }
+    this._ensureMethodExists(hooks, 'onStart');
+    this._ensureMethodExists(hooks, 'onBeforeTest');
+    this._ensureMethodExists(hooks, 'onAfterTest');
+    this._ensureMethodExists(hooks, 'onExit');
 
     this.hooks.push(hooks);
     return this;
   }
 
+  _ensureMethodExists(obj, method) {
+    if (!(method in obj)) {
+      obj[method] = _.noop;
+    }
+  }
+
   async onStart() {
-    await this._probeArtifactsRootDir();
+    await fs.ensureDir(this.artifactsRootDir);
     await Promise.all(this.hooks.map(hook => hook.onStart()));
   }
 
-  async _probeArtifactsRootDir() {
-    await fs.ensureDir(this.pathStrategy.rootDir);
-  }
-
-  async _initVideoRecorder() {
-    // this.videoRecorder = new AutomaticVideoRecorder
-    // this.behavior = {
-    //   recordVideosAutomatically: detoxRecordVideosOption !== 'none',
-    //   keepOnlyFailedTestRecordings: detoxRecordVideosOption === 'failing',
-    // };
-  }
-
-  async onBeforeTest() {
+  async onBeforeTest(testSummary) {
+    await Promise.all(this.hooks.map(hook => hook.onBeforeTest(testSummary)));
   }
 
   async onAfterTest() {
-
+    await Promise.all(this.hooks.map(hook => hook.onAfterTest(testSummary)));
   }
 
   async onExit() {
-
-  }
-
-  static get defaultConfig() {
-    return {
-      pathStrategy: new NoConflictPathStrategy(),
-      videoRecorder: new AndroidVideoRecorder(),
-    };
+    await Promise.all(this.hooks.map(hook => hook.onExit()));
   }
 }
 

@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
 const argparse = require('../utils/argparse');
-const ArtifactsCopier = require('../artifacts/ArtifactsCopier');
 const debug = require('../utils/debug'); //debug utils, leave here even if unused
 
 class Device {

@@ -5,7 +5,7 @@ class AndroidVideoRecording {
     this.videoId = config.videoId;
     this.deviceId = config.deviceId;
     this.adb = config.adb;
-    this.screenRecordOptions = config.screenRecordOptions;
+    this.screenRecordOptions = { ...config.screenRecordOptions };
     this.artifactPath = config.artifactPath;
     this.pathToVideoOnDevice = `/sdcard/${this.videoId}.mp4`;
     this.processPromise = null;

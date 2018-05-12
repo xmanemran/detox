@@ -1,5 +1,10 @@
 class VideoRecorderHooks {
-  constructor({ enabled, keepOnlyFailedTestRecordings, recorder, pathStrategy }) {
+  constructor({
+    enabled,
+    keepOnlyFailedTestRecordings,
+    recorder,
+    pathStrategy,
+  }) {
     this._enabled = enabled;
     this._keepOnlyFailedTestRecordings = keepOnlyFailedTestRecordings;
     this._recorder = recorder;

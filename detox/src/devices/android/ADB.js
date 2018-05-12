@@ -121,9 +121,25 @@ class ADB {
     return this.adbCmd(deviceId, `shell screencap ${path}`);
   }
 
-  screenrecord(deviceId, { path }) {
-    // const params = width && height ? ['--size', width + 'x' + height] : [];
-    return this.spawn(deviceId, ['shell', 'screenrecord', path]);
+  screenrecord(deviceId, { path, size, bitRate, timeLimit, verbose }) {
+    const [ width = 0, height = 0 ] = size || [];
+
+    const _size = (width > 0) && (height > 0)
+      ? ['--size', `${width}x${height}`]
+      : [];
+
+    const _bitRate = (bitRate > 0)
+      ? ['--bit-rate', String(bitRate)]
+      : [];
+
+    const _timeLimit = (timeLimit > 0)
+      ? [`--time-limit`, timeLimit]
+      : [];
+
+    const _verbose = verbose ? ['--verbose'] : [];
+    const screenRecordArgs = [..._size, ..._bitRate, ..._timeLimit, ..._verbose, path];
+
+    return this.spawn(deviceId, ['shell', 'screenrecord', ...screenRecordArgs]);
   }
 
   pull(deviceId, src, dst = '') {

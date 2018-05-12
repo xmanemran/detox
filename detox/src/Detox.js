@@ -10,7 +10,7 @@ const Client = require('./client/Client');
 const DetoxServer = require('detox-server');
 const URL = require('url').URL;
 const _ = require('lodash');
-const ArtifactsManager = require('./artifacts/v2/ArtifactsManager');
+const createArtifactsManager = require('./artifacts/v2');
 
 log.level = argparse.getArgValue('loglevel') || 'info';
 log.addLevel('wss', 999, {fg: 'blue', bg: 'black'}, 'wss');
@@ -59,8 +59,34 @@ class Detox {
       global.device = this.device;
     }
 
-    this.artifactsManager = new ArtifactsManager();
+    this.pluginApi = this._createPluginApi({
+      deviceId: this.device._deviceId,
+      deviceClass: this.deviceConfig.type,
+    });
+
+    this.artifactsManager = createArtifactsManager(this.pluginApi);
     await this.artifactsManager.onStart();
+  }
+
+  _createPluginApi({ deviceId, deviceClass }) {
+    return {
+      _config: Object.freeze({
+        artifactsLocation: argparse.getArgValue('artifacts-location') || './artifacts',
+        recordVideos: argparse.getArgValue('record-videos') || 'none',
+      }),
+
+      getDeviceId() {
+        return deviceId;
+      },
+
+      getDeviceClass() {
+        return deviceClass;
+      },
+
+      getConfig() {
+        return this._config;
+      },
+    };
   }
 
   async cleanup() {
