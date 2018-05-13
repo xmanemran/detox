@@ -8,6 +8,7 @@ const ADB = require('./android/ADB');
 const AAPT = require('./android/AAPT');
 const APKPath = require('./android/APKPath');
 const DeviceDriverBase = require('./DeviceDriverBase');
+const DetoxApi = require("../android/espressoapi/Detox");
 
 const EspressoDetox = 'com.wix.detox.espresso.EspressoDetox';
 
@@ -67,7 +68,7 @@ class AndroidDriver extends DeviceDriverBase {
     });
 
     if (this.instrumentationProcess) {
-      const call = invoke.call(invoke.Android.Class("com.wix.detox.Detox"), 'launchMainActivity');
+      const call = invoke.callDirectly(DetoxApi.launchMainActivity());
       await this.invocationManager.execute(call);
       return this.instrumentationProcess.pid;
     }
@@ -95,7 +96,7 @@ class AndroidDriver extends DeviceDriverBase {
 
   async deliverPayload(params) {
     if(params.url) {
-      const call = invoke.call(invoke.Android.Class("com.wix.detox.Detox"), 'startActivityFromUrl', invoke.Android.String(params.url));
+      const call = invoke.callDirectly(DetoxApi.startActivityFromUrl(params.url));
       await this.invocationManager.execute(call);
     }
 

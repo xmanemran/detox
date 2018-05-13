@@ -16,7 +16,7 @@ def getRepositoryUrl() {
 }
 
 def getRepositoryUsername() {
-    return findProperty('repositoryUsername') != null ? property('repositoryUsername') : ''
+    return findProperty('repositoryUsername') !=null ? property('repositoryUsername') : ''
 }
 
 def getRepositoryPassword() {
