@@ -1,6 +1,5 @@
 const path = require('path');
 const AndroidVideoRecording = require('./AndroidVideoRecording');
-const GuardedVideoRecording = require('./GuardedVideoRecording');
 
 class AndroidVideoRecorder {
   constructor(config) {
@@ -11,16 +10,13 @@ class AndroidVideoRecorder {
     this._recordingCounter = 0;
   }
 
-  async recordVideo(relativeArtifactPath) {
-    const recording = new AndroidVideoRecording({
+  recordVideo(relativeArtifactPath) {
+    return new AndroidVideoRecording({
       adb: this.adb,
       artifactPath: path.join(this.rootDir, relativeArtifactPath + '.mp4'),
       deviceId: this.deviceId,
       videoId: String(this._recordingCounter++),
     });
-
-    const guarded = new GuardedVideoRecording(recording);
-    return guarded.start();
   }
 }
 

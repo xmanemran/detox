@@ -10,9 +10,11 @@ class AndroidVideoRecording {
     this.pathToVideoOnDevice = `/sdcard/${this.videoId}.mp4`;
     this.processPromise = null;
     this.process = null;
+    this.started = false;
   }
 
   async start() {
+    this.started = true;
     this.processPromise = this.adb.screenrecord(this.deviceId, {
       ...this.screenRecordOptions,
       path: this.pathToVideoOnDevice
@@ -29,7 +31,6 @@ class AndroidVideoRecording {
 
   async save() {
     await this._delayWhileVideoFileIsBusy();
-    await fs.ensureDir(this.artifactPath);
     await this.adb.pull(this.deviceId, this.pathToVideoOnDevice, this.artifactPath);
     await this.adb.rm(this.deviceId, this.pathToVideoOnDevice);
   }

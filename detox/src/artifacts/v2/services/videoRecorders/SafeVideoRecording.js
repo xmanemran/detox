@@ -1,6 +1,6 @@
 const DetoxRuntimeError = require('../../../../errors/DetoxRuntimeError');
 
-class GuardedVideoRecording {
+class SafeVideoRecording {
   constructor(recording) {
     this._recording = recording;
     this._onStart = null;
@@ -13,7 +13,7 @@ class GuardedVideoRecording {
     this._assertRecordingIsNotBeingResumed();
 
     if (!this._onStart) {
-      this._onStart = this._recording.start().then(() => this);
+      this._onStart = this._recording.start();
     }
 
     return this._onStart;
@@ -23,7 +23,7 @@ class GuardedVideoRecording {
     this._assertRecordingHasBeenStarted();
 
     if (!this._onStop) {
-      this._onStop = this._recording.stop().then(() => this);
+      this._onStop = this._recording.stop();
     }
 
     return this._onStop;
@@ -31,12 +31,9 @@ class GuardedVideoRecording {
 
   save() {
     this._assertRecordingIsNotBeingDiscarded();
-    this.stop();
 
     if (!this._onSave) {
-      this._onSave = this._onStop
-        .then(() => this._recording.save())
-        .then(() => this);
+      this._onSave = this.stop().then(() => this._recording.save());
     }
 
     return this._onSave;
@@ -44,12 +41,9 @@ class GuardedVideoRecording {
 
   discard() {
     this._assertRecordingIsNotBeingSaved();
-    this.stop();
 
     if (!this._onDiscard) {
-      this._onDiscard = this._onDiscard
-        .then(() => this._recording.discard())
-        .then(() => this);
+      this._onDiscard = this.stop().then(() => this._recording.discard());
     }
 
     return this._onDiscard;
@@ -92,4 +86,4 @@ class GuardedVideoRecording {
   }
 }
 
-module.exports = GuardedVideoRecording;
+module.exports = SafeVideoRecording;
