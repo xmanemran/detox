@@ -110,13 +110,13 @@ class Detox {
   }
 
   async beforeEach(testContext) {
-    await this._handleAppCrashIfAny(testContext.fullTitle);
+    await this._handleAppCrashIfAny(testContext.fullName);
     await this.artifactsManager.onBeforeTest(testContext);
   }
 
   async afterEach(testContext) {
     await this.artifactsManager.onAfterTest(testContext);
-    await this._handleAppCrashIfAny(testContext.fullTitle);
+    await this._handleAppCrashIfAny(testContext.fullName);
   }
 
   async _handleAppCrashIfAny(testName) {

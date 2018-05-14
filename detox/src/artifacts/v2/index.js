@@ -1,9 +1,11 @@
 const _ = require('lodash');
-const ADB = require('../../devices/android/ADB');
-const ArtifactsManager = require('./ArtifactsManager');
 const NoConflictPathStrategy = require('./services/pathStrategies/NoConflictPathStrategy');
+const AndroidVideoRecorder = require('./services/videoRecorders/AndroidVideoRecorder');
+const SafeVideoRecorder = require('./services/videoRecorders/SafeVideoRecorder');
+const ADB = require('../../devices/android/ADB');
+const DetoxRuntimeError = require('../../errors/DetoxRuntimeError');
+const ArtifactsManager = require('./ArtifactsManager');
 const VideoRecorderHooks = require('./hooks/VideoRecorderHooks');
-const { createSafeVideoRecorder } = require('./services/videoRecorders');
 
 const resolve = {
   adb: _.once(() => new ADB()),
@@ -20,7 +22,54 @@ const resolve = {
       default: () => null,
     },
     videoRecorder: {
-      default: createSafeVideoRecorder,
+      android: _.once((api) => new AndroidVideoRecorder({
+        adb: resolve.adb(),
+        deviceId: api.getDeviceId(),
+        pathStrategy: resolve.artifacts.pathStrategy(),
+        rootDir: api.getConfig().artifactsLocation,
+        screenRecordOptions: { verbose: true },
+      })),
+      ios: _.once(() => ({
+        recordVideo: () => ({
+          async start() {},
+          async stop() {},
+          async save() {},
+          async discard() {}
+        }),
+      })),
+      actual: _.once((detoxApi) => {
+        const deviceClass = detoxApi.getDeviceClass();
+
+        switch (deviceClass) {
+          case 'ios.simulator':
+          case 'ios.none':
+            return resolve.artifacts.videoRecorder.ios(detoxApi);
+          case 'android.attached':
+          case 'android.emulator':
+            return resolve.artifacts.videoRecorder.android(detoxApi);
+          default:
+            const _supportedClasses = [
+              'ios.simulator',
+              'ios.none',
+              'android.attached',
+              'android.emulator',
+            ];
+
+            throw new DetoxRuntimeError({
+              message: `Failed to record video due to unknown device class: ${deviceClass}`,
+              hint: `Only the following values are supported: ${_supportedClasses.join(', ')}`,
+            });
+        }
+      }),
+      safe: _.once((detoxApi) => {
+        const artifactsRootDir = detoxApi.getConfig().artifactsLocation;
+
+        return new SafeVideoRecorder({
+          artifactsRootDir,
+          recorder: resolve.artifacts.videoRecorder.actual(detoxApi),
+        });
+      }),
+      default: (api) => resolve.artifacts.videoRecorder.safe(api)
     },
     hooks: {
       log: _.once(() => ({})),

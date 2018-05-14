@@ -10,15 +10,15 @@ describe(NoConflictPathStrategy, () => {
   });
 
   it('should provide indexed and nested path for test artifact', () => {
-    const test1 = {title: 'test 1', fullTitle: 'some test 1'};
+    const test1 = {title: 'test 1', fullName: 'some test 1'};
     const artifactPath1 = strategy.constructPathForTestArtifact(test1, '1.log');
-    const expectedPath1 = path.join(strategy.rootDir, '0. ' + test1.fullTitle, '1.log');
+    const expectedPath1 = path.join(strategy.rootDir, '0. ' + test1.fullName, '1.log');
 
     expect(artifactPath1).toBe(expectedPath1);
   });
 
   it('should give different indices for different test objects', () => {
-    const createTestSummary = () => ({ title: 'test', fullTitle: 'suite - test' });
+    const createTestSummary = () => ({ title: 'test', fullName: 'suite - test' });
 
     const path1 = strategy.constructPathForTestArtifact(createTestSummary(), 'artifact');
     const path2 = strategy.constructPathForTestArtifact(createTestSummary(), 'artifact');
@@ -29,7 +29,7 @@ describe(NoConflictPathStrategy, () => {
   });
 
   it('should give same indices for same tests', () => {
-    const testSummary = { title: 'test', fullTitle: 'suite - test' };
+    const testSummary = { title: 'test', fullName: 'suite - test' };
 
     const path1 = strategy.constructPathForTestArtifact(testSummary, 'artifact');
     const path2 = strategy.constructPathForTestArtifact(testSummary, 'artifact');
@@ -38,9 +38,9 @@ describe(NoConflictPathStrategy, () => {
   });
 
   it('should protect against relative ".." hacks', () => {
-    const normalTest = { fullTitle: 'test', title: 'test' };
+    const normalTest = { fullName: 'test', title: 'test' };
     const normalArtifact = 'artifact';
-    const hackyTest = { fullTitle: '/../../../test', title: 'test' };
+    const hackyTest = { fullName: '/../../../test', title: 'test' };
     const hackyArtifactName = '../../../artifact';
 
     expect(() => strategy.constructPathForTestArtifact(normalTest, hackyArtifactName)).toThrowErrorMatchingSnapshot();
@@ -49,7 +49,7 @@ describe(NoConflictPathStrategy, () => {
   });
 
   it('should trim too long filenames', () => {
-    const actualPath = strategy.constructPathForTestArtifact({ title: 'test', fullTitle: '1'.repeat(512) }, '2'.repeat(256));
+    const actualPath = strategy.constructPathForTestArtifact({ title: 'test', fullName: '1'.repeat(512) }, '2'.repeat(256));
     const expectedPath = path.join(strategy.rootDir, '0. ' + '1'.repeat(252), '2'.repeat(255));
 
     expect(actualPath).toBe(expectedPath);

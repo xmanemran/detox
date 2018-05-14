@@ -133,7 +133,7 @@ describe('Detox', () => {
     detox = new Detox({deviceConfig: validDeviceConfigWithSession});
     await detox.init();
     detox.client.getPendingCrashAndReset.mockReturnValueOnce('crash');
-    await detox.afterEach({ title: 'a', fullTitle: 'b', status: 'failed' });
+    await detox.afterEach({ title: 'a', fullName: 'b', status: 'failed' });
     expect(device.launchApp).toHaveBeenCalledTimes(1);
   });
 });

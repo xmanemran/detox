@@ -6,6 +6,7 @@ class AndroidVideoRecorder {
     this.adb = config.adb;
     this.deviceId = config.deviceId;
     this.pathStrategy = config.pathStrategy;
+    this.screenRecordOptions = config.screenRecordOptions;
     this.rootDir = config.rootDir;
     this._recordingCounter = 0;
   }
@@ -16,6 +17,7 @@ class AndroidVideoRecorder {
       artifactPath: path.join(this.rootDir, relativeArtifactPath + '.mp4'),
       deviceId: this.deviceId,
       videoId: String(this._recordingCounter++),
+      screenRecordOptions: this.screenRecordOptions,
     });
   }
 }

@@ -18,16 +18,20 @@ class VideoRecorderHooks {
   async onBeforeTest(testSummary) {
     if (this._shouldStartVideoRecording(testSummary)) {
       const pathToVideoFile = this._pathStrategy.constructPathForTestArtifact(testSummary, 'recording');
-      this._ongoingVideoRecording = await this._recorder.recordVideo(pathToVideoFile);
+      this._ongoingVideoRecording = this._recorder.recordVideo(pathToVideoFile);
+      await this._ongoingVideoRecording.start();
     }
   }
 
   async onAfterTest(testSummary) {
-    if (this._ongoingVideoRecording == null)  {
+    const recording = this._ongoingVideoRecording;
+
+    if (recording == null)  {
       return;
     }
 
-    const recording = await this._ongoingVideoRecording.stop();
+    await recording.stop();
+
     const finalizationTask = this._shouldKeepVideoRecording(testSummary)
       ? recording.save()
       : recording.discard();
