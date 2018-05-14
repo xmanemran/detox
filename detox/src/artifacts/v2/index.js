@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const DetoxRuntimeError = require('../../errors/DetoxRuntimeError');
 const ADB = require('../../devices/android/ADB');
 const ArtifactsManager = require('./ArtifactsManager');
 const AndroidVideoRecorder = require('./services/videoRecorders/AndroidVideoRecorder');
@@ -20,6 +21,22 @@ const resolve = {
       default: () => null,
     },
     videoRecorder: {
+      ios: _.once(() => ({
+        recordVideo: () => ({
+          start() {
+            return this;
+          },
+          stop() {
+            return this;
+          },
+          save() {
+            return this;
+          },
+          discard() {
+            return this;
+          }
+        }),
+      })),
       android: _.once((api) => new AndroidVideoRecorder({
         adb: resolve.adb(),
         deviceId: api.getDeviceId(),
@@ -28,13 +45,16 @@ const resolve = {
       })),
       default: _.once((api) => {
         const supportedClasses = [
-          // 'ios.simulator',
-          // 'ios.none',
+          'ios.simulator',
+          'ios.none',
           'android.attached',
           'android.emulator',
         ];
 
         switch (api.getDeviceClass()) {
+          case 'ios.simulator':
+          case 'ios.none':
+            return resolve.artifacts.videoRecorder.ios(api);
           case 'android.attached':
           case 'android.emulator':
             return resolve.artifacts.videoRecorder.android(api);
@@ -47,8 +67,8 @@ const resolve = {
       }),
     },
     hooks: {
-      log: _.once(() => {}),
-      screenshot: _.once(() => {}),
+      log: _.once(() => ({})),
+      screenshot: _.once(() => ({})),
       video: _.once((api) => {
         const { recordVideos } = api.getConfig();
 
@@ -63,7 +83,7 @@ const resolve = {
 
     artifactsManager: _.once((api) => {
       const manager = new ArtifactsManager({
-        pathStrategy: resolve.artifacts.pathStrategy(api),
+        artifactsRootDir: api.getConfig().artifactsLocation || './artifacts',
       });
 
       return manager

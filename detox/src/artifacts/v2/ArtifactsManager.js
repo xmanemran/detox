@@ -32,7 +32,7 @@ class ArtifactsManager {
     await Promise.all(this.hooks.map(hook => hook.onBeforeTest(testSummary)));
   }
 
-  async onAfterTest() {
+  async onAfterTest(testSummary) {
     await Promise.all(this.hooks.map(hook => hook.onAfterTest(testSummary)));
   }
 
