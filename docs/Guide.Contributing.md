@@ -5,7 +5,7 @@ title: Contributing
 
 ## Prerequisites
 
-### Install `node` v8.11.1 LTS or higher
+### Install `node` v7.6 or higher (to support async-await natively)
 
 ```
 brew install node
